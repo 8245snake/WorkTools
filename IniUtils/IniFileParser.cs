@@ -53,7 +53,7 @@ namespace IniUtils
 
         private static IEnumerable<string> readFileLines(string filePath)
         {
-            using (StreamReader reader = new StreamReader(filePath))
+            using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.GetEncoding("shift_jis")))
             {
                 while (!reader.EndOfStream)
                 {
@@ -79,7 +79,7 @@ namespace IniUtils
                     continue;
                 }
 
-                if (line.IndexOf("=") < 0 && line.IndexOf("[") < 0)
+                if (line.IndexOf("=") < 0 && line.IndexOf("[") < 0 && line.IndexOf("]") < 0)
                 {
                     continue;
                 }
@@ -114,6 +114,10 @@ namespace IniUtils
                 }
 
                 int indexOfEqual = line.IndexOf("=");
+                if (indexOfEqual < 0)
+                {
+                    continue;
+                }
                 string key = line.Substring(0, indexOfEqual).Trim();
                 // Keyも先勝ち
                 if (!section.Keys.ContainsKey(key))
