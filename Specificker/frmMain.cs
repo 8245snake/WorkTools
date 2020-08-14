@@ -47,13 +47,19 @@ namespace Specificker
         private void txtInput1_DragDrop(object sender, DragEventArgs e)
         {
             txtInput1.Text = getFilePathFromDragDrop(e);
-            btnExec.Enabled = (txtInput1.Text != "" && txtInput2.Text != "");
+            btnExec.Enabled = isTextValidatedOK();
         }
 
         private void txtInput2_DragDrop(object sender, DragEventArgs e)
         {
             txtInput2.Text = getFilePathFromDragDrop(e);
-            btnExec.Enabled = (txtInput1.Text != "" && txtInput2.Text != "");
+            btnExec.Enabled = isTextValidatedOK();
+        }
+
+        private void txtOutput_DragDrop(object sender, DragEventArgs e)
+        {
+            txtOutput.Text = getFilePathFromDragDrop(e);
+            btnExec.Enabled = isTextValidatedOK();
         }
 
         private void enableAllControl(bool enabled)
@@ -145,7 +151,7 @@ namespace Specificker
             {
                 txtInput1.Text = input;
             }
-            btnExec.Enabled = (txtInput1.Text != "" && txtInput2.Text != "");
+            btnExec.Enabled = isTextValidatedOK();
         }
 
         private void btnRef2_Click(object sender, EventArgs e)
@@ -163,7 +169,13 @@ namespace Specificker
             {
                 txtInput2.Text = input;
             }
-            btnExec.Enabled = (txtInput1.Text != "" && txtInput2.Text != "");
+            btnExec.Enabled = isTextValidatedOK();
+        }
+
+        private void btnOutputRef_Click(object sender, EventArgs e)
+        {
+            txtOutput.Text = getFolderFromDialog();
+            btnExec.Enabled = isTextValidatedOK();
         }
 
         private string getFilePathFromDialog()
@@ -207,28 +219,38 @@ namespace Specificker
             txtInput2.Text = "";
         }
 
+        private bool isTextValidatedOK()
+        {
+            return (txtInput1.Text != "" && txtInput2.Text != "" && txtOutput.Text != "");
+        }
+
         private void btnExec_Click(object sender, EventArgs e)
         {
+
+            if (!isTextValidatedOK())
+            {
+                MessageBox.Show("入力値が足りません");
+                return;
+            }
             // 初期化
             pgbMain.Value = 0;
             lblProgress.Text = "";
             // 画面ロック
             enableAllControl(false);
 
-            string saveFolder = getFolderFromDialog();
-            bgworkerMain.RunWorkerAsync(saveFolder);
+            bgworkerMain.RunWorkerAsync(txtOutput.Text);
 
         }
 
         private void txtInput_Validated(object sender, EventArgs e)
         {
-            btnExec.Enabled = (txtInput1.Text != "" && txtInput2.Text != "");
+            btnExec.Enabled = isTextValidatedOK();
         }
 
         private void frmMain_Shown(object sender, EventArgs e)
         {
             // 実行ボタン制御
-            btnExec.Enabled = (txtInput1.Text != "" && txtInput2.Text != "");
+            btnExec.Enabled = isTextValidatedOK();
             // デフォルトチェック
             setDefaultCheck();
         }
@@ -276,5 +298,6 @@ namespace Specificker
             enableAllControl(true);
             lblProgress.Text = "完了";
         }
+
     }
 }
