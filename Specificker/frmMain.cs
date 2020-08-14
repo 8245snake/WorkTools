@@ -121,6 +121,11 @@ namespace Specificker
                 e.Effect = DragDropEffects.None;
             }
         }
+        private void txtOutput_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+        }
+
         private bool checkDropFileTyep(DragEventArgs e)
         {
             string path = getFilePathFromDragDrop(e);
@@ -174,7 +179,12 @@ namespace Specificker
 
         private void btnOutputRef_Click(object sender, EventArgs e)
         {
-            txtOutput.Text = getFolderFromDialog();
+            string output = getFolderFromDialog();
+            if (output == "")
+            {
+                return;
+            }
+            txtOutput.Text = output;
             btnExec.Enabled = isTextValidatedOK();
         }
 

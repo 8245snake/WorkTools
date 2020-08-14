@@ -239,7 +239,7 @@
             this.txtOutput.Size = new System.Drawing.Size(293, 31);
             this.txtOutput.TabIndex = 12;
             this.txtOutput.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtOutput_DragDrop);
-            this.txtOutput.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtInput_DragEnter);
+            this.txtOutput.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtOutput_DragEnter);
             this.txtOutput.Validated += new System.EventHandler(this.txtInput_Validated);
             // 
             // frmMain
