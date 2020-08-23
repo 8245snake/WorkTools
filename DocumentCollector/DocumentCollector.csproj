@@ -61,6 +61,9 @@
     <Compile Include="ctlTreeView.xaml.cs">
       <DependentUpon>ctlTreeView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SsttingWindow.xaml.cs">
+      <DependentUpon>SsttingWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -75,6 +78,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ctlTreeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SsttingWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

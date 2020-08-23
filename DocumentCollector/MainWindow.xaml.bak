@@ -13,7 +13,7 @@
                 <MenuItem x:Name="menuFileEnd" Header="終了" Click="menuFileEnd_Click" />
             </MenuItem>
             <MenuItem x:Name="menuTool" Header="ツール">
-                <MenuItem x:Name="menuToolSetting" Header="設定" Click="menuToolSetting_Click"/>
+                <MenuItem x:Name="menuToolSetting" Header="設定"/>
             </MenuItem>
         </Menu>
 
@@ -36,7 +36,7 @@
 
         <!-- 出力先 -->
         <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10px" >
-            <TextBlock VerticalAlignment="Center">出力先</TextBlock>
+            <TextBlock  VerticalAlignment="Center">出力先</TextBlock>
             <TextBox x:Name="txtOutputFolder" MinWidth="500px" FontSize="14" Margin="5px,0px,0px,0px" AllowDrop="True" Drop="TextBox_Drop" PreviewDragOver="txtOutputFolder_PreviewDragOver"/>
             <Button x:Name="btnGetFolder" MinWidth="50px" MinHeight="20px" Click="btnGetFolder_Click">参照</Button>
         </WrapPanel>

@@ -1,0 +1,13 @@
+﻿<Window x:Class="DocumentCollector.SsttingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DocumentCollector"
+        mc:Ignorable="d"
+        Title="SsttingWindow" Height="450" Width="800">
+    <DockPanel>
+        <ListView x:Name="lstSettingKind" DockPanel.Dock="Left" MinWidth="150px"></ListView>
+        <DockPanel x:Name="panelSetting" DockPanel.Dock="Right"></DockPanel>
+    </DockPanel>
+</Window>

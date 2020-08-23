@@ -68,9 +68,17 @@ namespace DocumentCollector
             return selectedPath;
         }
 
-        private void txtOutputFolder_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
+        private void txtOutputFolder_PreviewDragOver(object sender, System.Windows.DragEventArgs e)
         {
-
+            if (!DragDropUtil.IsDropedFile(e))
+            {
+                e.Effects = System.Windows.DragDropEffects.Copy;
+                e.Handled = true;
+            }
+            else
+            {
+                e.Effects = System.Windows.DragDropEffects.None;
+            }
         }
 
         private void TextBox_Drop(object sender, System.Windows.DragEventArgs e)
@@ -93,17 +101,10 @@ namespace DocumentCollector
             System.Windows.Application.Current.Shutdown();
         }
 
-        private void txtOutputFolder_PreviewDragOver(object sender, System.Windows.DragEventArgs e)
+        private void menuToolSetting_Click(object sender, RoutedEventArgs e)
         {
-            if (!DragDropUtil.IsDropedFile(e))
-            {
-                e.Effects = System.Windows.DragDropEffects.Copy;
-                e.Handled = true;
-            }
-            else
-            {
-                e.Effects = System.Windows.DragDropEffects.None;
-            }
+            SsttingWindow frm = new SsttingWindow();
+            frm.ShowDialog();
         }
     }
 }
