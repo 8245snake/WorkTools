@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:DocumentCollector"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
+             KeyUp="CheckBox_KeyUp"
           >
     <TreeView.Resources>
         <Style TargetType="TreeViewItem">
@@ -14,8 +15,8 @@
     </TreeView.Resources>
     <TreeView.ItemTemplate>
         <HierarchicalDataTemplate DataType="{x:Type local:CheckTreeSource}" ItemsSource="{Binding Children}">
-            <CheckBox Margin="1" IsChecked="{Binding IsChecked}" Click="CheckBox_Click" Focusable="False">
-                <TextBlock Text="{Binding Text}" Focusable="False"/>
+            <CheckBox Margin="1" IsChecked="{Binding IsChecked}" Click="CheckBox_Click" Focusable="False" >
+                <TextBlock Text="{Binding Text}" Focusable="False" />
             </CheckBox>
         </HierarchicalDataTemplate>
     </TreeView.ItemTemplate>
