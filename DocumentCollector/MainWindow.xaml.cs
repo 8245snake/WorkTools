@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -40,6 +41,69 @@ namespace DocumentCollector
             item2.Add(item21);
 
             DataContext = this;
+        }
+
+        private void btnGetFolder_Click(object sender, RoutedEventArgs e)
+        {
+            string folder = getFolderFromDialog();
+            if (folder != "") {
+                txtOutputFolder.Text = folder;
+            }
+        }
+
+        private string getFolderFromDialog()
+        {
+            string selectedPath = "";
+            using (FolderBrowserDialog fbDialog = new FolderBrowserDialog())
+            {
+                fbDialog.Description = "開くフォルダを選択してください";
+                fbDialog.SelectedPath = @"C:";
+                // 「新しいフォルダーの作成する」ボタンを表示する
+                fbDialog.ShowNewFolderButton = true;
+                if (fbDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    selectedPath = fbDialog.SelectedPath;
+                }
+            }
+            return selectedPath;
+        }
+
+        private void txtOutputFolder_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
+        {
+
+        }
+
+        private void TextBox_Drop(object sender, System.Windows.DragEventArgs e)
+        {
+            string folder = DragDropUtil.GetFilePathFromDragDrop(e);
+            if (folder != "")
+            {
+                txtOutputFolder.Text = folder;
+            }
+        }
+
+
+        /// <summary>
+        /// 終了ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void menuFileEnd_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        private void txtOutputFolder_PreviewDragOver(object sender, System.Windows.DragEventArgs e)
+        {
+            if (!DragDropUtil.IsDropedFile(e))
+            {
+                e.Effects = System.Windows.DragDropEffects.Copy;
+                e.Handled = true;
+            }
+            else
+            {
+                e.Effects = System.Windows.DragDropEffects.None;
+            }
         }
     }
 }

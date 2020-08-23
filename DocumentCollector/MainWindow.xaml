@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DocumentCollector"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="650" Width="1300">
     <DockPanel>
         <!-- メニュー -->
-        <Menu DockPanel.Dock="Top" Height="20px"></Menu>
+        <Menu DockPanel.Dock="Top" Height="30px" Margin="5px,0px,0px,0px">
+            <MenuItem x:Name="menuFile" Header="ファイル">
+                <MenuItem x:Name="menuFileEnd" Header="終了" Click="menuFileEnd_Click" />
+            </MenuItem>
+            <MenuItem x:Name="menuTool" Header="ツール">
+                <MenuItem x:Name="menuToolSetting" Header="設定"/>
+            </MenuItem>
+        </Menu>
 
         <!-- 検索条件 -->
         <WrapPanel DockPanel.Dock="Top">
@@ -28,10 +35,10 @@
         </WrapPanel>
 
         <!-- 出力先 -->
-        <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10px">
+        <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10px" >
             <TextBlock VerticalAlignment="Center">出力先</TextBlock>
-            <TextBox MinWidth="500px" FontSize="14" Margin="5px,0px,0px,0px"></TextBox>
-            <Button MinWidth="50px" MinHeight="20px">参照</Button>
+            <TextBox x:Name="txtOutputFolder" MinWidth="500px" FontSize="14" Margin="5px,0px,0px,0px" AllowDrop="True" Drop="TextBox_Drop" PreviewDragOver="txtOutputFolder_PreviewDragOver"/>
+            <Button x:Name="btnGetFolder" MinWidth="50px" MinHeight="20px" Click="btnGetFolder_Click">参照</Button>
         </WrapPanel>
 
         <!-- リポジトリブラウザー(残り全ての領域) -->
