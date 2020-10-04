@@ -37,6 +37,21 @@ namespace IniUtils
         }
 
         /// <summary>
+        /// 指定したiniをパースする（複数）
+        /// </summary>
+        /// <param name="iniFilePathArr">iniファイルのパス</param>
+        /// <returns>iniファイルデータのリスト<</returns>
+        public static IniFileList ParseIniFiles(params string[] iniFilePathArr)
+        {
+            IniFileList list = new IniFileList();
+            foreach (string path in iniFilePathArr)
+            {
+                list.Add(ParseIniFile(path));
+            }
+            return list;
+        }
+
+        /// <summary>
         /// 指定したフォルダ内のiniをパースする
         /// </summary>
         /// <param name="iniFolder">iniがあるフォルダパス</param>
@@ -51,6 +66,11 @@ namespace IniUtils
             return list;
         }
 
+        /// <summary>
+        /// ファイルから１行ずつ読み出す
+        /// </summary>
+        /// <param name="filePath">ファイルパス</param>
+        /// <returns>１行分の文字列</returns>
         private static IEnumerable<string> readFileLines(string filePath)
         {
             using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.GetEncoding("shift_jis")))
@@ -62,23 +82,31 @@ namespace IniUtils
             }
         }
 
+        /// <summary>
+        /// 無意味な行を除いて返すフィルタ関数
+        /// </summary>
+        /// <param name="lines">１行分の文字列</param>
+        /// <returns>意味のある１行分の文字列</returns>
+        /// <remarks>空白行、セクションやキーとして成り立っていない行を消す。コメントは残す。</remarks>
         private static IEnumerable<string> removeNoneSenceLine(IEnumerable<string> lines)
         {
             foreach (string item in lines)
             {
                 string line = item.Trim();
 
+                // 空白行
                 if (line.Length < 1)
                 {
                     continue;
                 }
 
-                // コメント行なら無視
+                // コメント行なら通す
                 if (line.IndexOf(";") == 0)
                 {
-                    continue;
+                    yield return line;
                 }
 
+                // 意味をなさない行
                 if (line.IndexOf("=") < 0 && line.IndexOf("[") < 0 && line.IndexOf("]") < 0)
                 {
                     continue;
@@ -88,10 +116,18 @@ namespace IniUtils
             }
         }
 
+        /// <summary>
+        /// セクション単位で抽出して都度返す
+        /// </summary>
+        /// <param name="lines">読みだした行</param>
+        /// <param name="fileName">iniファイル名</param>
+        /// <returns>セクション</returns>
         private static IEnumerable<IniSection> getSections(IEnumerable<string> lines, string fileName)
         {
             string sectionName = "";
             IniSection section = null;
+            List<string> comments = new List<string>();
+
             foreach (string line in lines)
             {
                 // セクションを見つけたら
@@ -102,6 +138,7 @@ namespace IniUtils
                     sectionName = line.Substring(start, length);
                     if (section == null)
                     {
+                        // １回目しか通らない
                         section = new IniSection(fileName, sectionName);
                     }
                     else
@@ -110,6 +147,13 @@ namespace IniUtils
                         // これまでのセクションを返して新しいセクションで開始
                         section = new IniSection(fileName, sectionName);
                     }
+                    continue;
+                }
+
+                // コメントならばキャッシュし、次に見つかるキーまで保持
+                if (line.IndexOf(";") == 0 )
+                {
+                    comments.Add(line.Trim(';'));
                     continue;
                 }
 
@@ -123,8 +167,9 @@ namespace IniUtils
                 if (!section.Keys.ContainsKey(key))
                 {
                     string value = line.Substring(indexOfEqual + 1).Trim();
-                    IniData ini = new IniData(fileName, sectionName, key, value);
+                    IniData ini = new IniData(fileName, sectionName, key, value, string.Join("\r\n", comments));
                     section.Keys.Add(ini);
+                    comments.Clear();
                 }
             }
             if (section != null)

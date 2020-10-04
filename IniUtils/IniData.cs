@@ -12,13 +12,16 @@ namespace IniUtils
         public string SectionName = "";
         public string KeyName = "";
         public string Value = "";
+        public string Comment = "";
+        
 
-        public IniData(string file, string section , string key , string value)
+        public IniData(string file, string section , string key , string value, string comment)
         {
             FileName = file;
             SectionName = section;
             KeyName = key;
             Value = value;
+            Comment = comment;
         }
 
         public void Export(string directory)
