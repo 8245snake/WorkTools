@@ -309,5 +309,9 @@ namespace Specificker
             lblProgress.Text = "完了";
         }
 
+        private void txtInput1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

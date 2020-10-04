@@ -106,6 +106,7 @@
             this.txtInput1.Name = "txtInput1";
             this.txtInput1.Size = new System.Drawing.Size(293, 31);
             this.txtInput1.TabIndex = 1;
+            this.txtInput1.TextChanged += new System.EventHandler(this.txtInput1_TextChanged);
             this.txtInput1.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtInput1_DragDrop);
             this.txtInput1.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtInput_DragEnter);
             this.txtInput1.Validated += new System.EventHandler(this.txtInput_Validated);
