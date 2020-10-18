@@ -49,5 +49,18 @@ namespace IniUtils
             result.Keys = minuend.Keys - subtrahend.Keys;
             return result;
         }
+
+        /// <summary>
+        /// 除算
+        /// </summary>
+        /// <param name="minuend"></param>
+        /// <param name="subtrahend"></param>
+        /// <returns></returns>
+        public static IniSection operator /(IniSection minuend, IniSection subtrahend)
+        {
+            IniSection result = new IniSection(minuend.FileName, minuend.SectionName);
+            result.Keys = minuend.Keys / subtrahend.Keys;
+            return result;
+        }
     }
 }

@@ -188,5 +188,36 @@ namespace IniUtils
             }
             return result;
         }
+
+        /// <summary>
+        /// 第一引数の方にしかないセクションを返す
+        /// </summary>
+        /// <param name="minuend"></param>
+        /// <param name="subtrahend"></param>
+        /// <returns></returns>
+        public static IniSectionList operator /(IniSectionList minuend, IniSectionList subtrahend)
+        {
+            IniSectionList result = new IniSectionList();
+            // 引かれる方のリストで回す
+            foreach (IniSection section in minuend.Values)
+            {
+                string sectionName = section.SectionName;
+                if (!subtrahend.ContainsKey(sectionName))
+                {
+                    // 引かれる方にだけある要素なら残す
+                    result.Add(section);
+                }
+                else
+                {
+                    // 引かれる方と引く方にある場合は差分だけ残す
+                    IniSection sub = section / subtrahend[sectionName];
+                    if (sub.Keys.Count > 0)
+                    {
+                        result.Add(sub);
+                    }
+                }
+            }
+            return result;
+        }
     }
 }

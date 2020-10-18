@@ -196,5 +196,22 @@ namespace IniUtils
             }
             return result;
         }
+
+
+        public static IniDataList operator /(IniDataList minuend, IniDataList subtrahend)
+        {
+            IniDataList result = new IniDataList();
+            // 引かれる方のリストで回す
+            foreach (IniData ini in minuend.Values)
+            {
+                string keyName = ini.KeyName;
+                if (!subtrahend.ContainsKey(keyName))
+                {
+                    // 引かれる方にだけある要素なら残す
+                    result.Add(ini);
+                }
+            }
+            return result;
+        }
     }
 }

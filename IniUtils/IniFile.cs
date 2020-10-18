@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace IniUtils
 {
@@ -46,6 +47,193 @@ namespace IniUtils
             IniFile result = new IniFile(minuend.FileName);
             result.Sections = minuend.Sections - subtrahend.Sections;
             return result;
+        }
+
+        /// <summary>
+        /// 除算
+        /// </summary>
+        /// <param name="minuend"></param>
+        /// <param name="subtrahend"></param>
+        /// <returns></returns>
+        public static IniFile operator /(IniFile minuend, IniFile subtrahend)
+        {
+            IniFile result = new IniFile(minuend.FileName);
+            result.Sections = minuend.Sections / subtrahend.Sections;
+            return result;
+        }
+
+        /// <summary>
+        /// 設定をすべて書き出す
+        /// </summary>
+        /// <param name="path">書き出すファイルパス（既にあれば上書きされる）</param>
+        /// <param name="outputComment">コメントも書き出すか</param>
+        public void WriteNewFile(string path, bool outputComment)
+        {
+            Encoding encoding = Encoding.GetEncoding("Shift_JIS");
+            using (StreamWriter writer = new StreamWriter(path, false, encoding))
+            {
+                foreach (IniSection section in Sections.Values)
+                {
+                    // セクション書き出し
+                    writer.WriteLine("[" + section.SectionName + "]");
+                    foreach (IniData data in section.Keys.Values)
+                    {
+                        // コメント書き出し
+                        if (outputComment && data.Comment != "")
+                        {
+                            string[] del = { "\r\n" };
+                            foreach (string line in data.Comment.Split(del, StringSplitOptions.None))
+                            {
+                                writer.WriteLine(";" + line);
+                            }
+                        }
+                        // キー＆値書き出し
+                        writer.WriteLine(data.KeyName + "=" + data.Value);
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// 指定したファイルに書き込む
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="outputComment"></param>
+        public void MergeIniFile(string path, bool outputComment)
+        {
+            // 書き込む相手との差分を計算しておく
+            IniFile other = IniFileParser.ParseIniFile(path);
+            IniFile diff = this - other;
+            IniFile quotient = this / other;
+
+            Encoding encoding = Encoding.GetEncoding("Shift_JIS");
+            string[] del = { "\r\n" };
+            string sectionName = "";
+            string sectionName_save = "";
+            bool sectionHitFlg = false;
+            string tmpPath = @"C:\Users\USER\Documents\tmp.ini";
+            // 一時ファイルに書き込み
+            using (StreamWriter writer = new StreamWriter(tmpPath, true, encoding))
+            {
+                foreach (string line in readFileLines(path))
+                {
+
+                    if (line.Trim() == "" || (!IniFileParser.IsCommentLine(line) && !IniFileParser.IsSectionLine(line) && !IniFileParser.IsKeyValueLine(line)))
+                    {
+                        // 無意味な行はそのまま通す
+                        writer.WriteLine(line);
+                        continue;
+                    }
+
+                    if (IniFileParser.IsSectionLine(line, ref sectionName))
+                    {
+                        if (sectionHitFlg && sectionName_save != "") {
+                            // このときはセクションの終わりに到達したときなので
+                            // thisにしかないキーを書き出す必要がある
+                            foreach (IniData data in quotient.Sections[sectionName_save].Keys.Values)
+                            {
+                                // コメント書き出し
+                                if (outputComment && data.Comment != "")
+                                {
+                                    foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
+                                    {
+                                        writer.WriteLine(";" + comment);
+                                    }
+                                }
+                                // キー＆値書き出し
+                                writer.WriteLine(data.KeyName + "=" + data.Value);
+                            }
+                        }
+
+                        // 差分があるセクションか判定（このフラグはセクション行でのみ更新される）
+                        sectionHitFlg = diff.Sections.ContainsKey(sectionName);
+                        sectionName_save = sectionName;
+                    }
+
+                    // 差分があるセクション処理中
+                    if (sectionHitFlg)
+                    {
+                        string key = "", value = "";
+                        if (IniFileParser.IsKeyValueLine(line, ref key, ref value))
+                        {
+                            // 差分があるキーか判定
+                            if (diff.Sections[sectionName].Keys.ContainsKey(key))
+                            {
+                                IniData data = diff.Sections[sectionName].Keys[key];
+                                IniData otherComment = other.Sections[sectionName].Keys[key];
+
+                                // コメント書き出し
+                                if (outputComment && data.Comment != "" && otherComment.Comment != data.Comment)
+                                {
+                                    foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
+                                    {
+                                        writer.WriteLine(";" + comment);
+                                    }
+                                }
+                                // キー＆値書き出し
+                                writer.WriteLine(data.KeyName + "=" + data.Value);
+                                continue;
+                            }
+                        }
+                    }
+
+                    writer.WriteLine(line);
+                }
+
+                if (sectionHitFlg && sectionName_save != "")
+                {
+                    // このときはセクションの終わりに到達したときなので
+                    // thisにしかないキーを書き出す必要がある
+                    foreach (IniData data in quotient.Sections[sectionName_save].Keys.Values)
+                    {
+                        // コメント書き出し
+                        if (outputComment && data.Comment != "")
+                        {
+                            foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
+                            {
+                                writer.WriteLine(";" + comment);
+                            }
+                        }
+                        // キー＆値書き出し
+                        writer.WriteLine(data.KeyName + "=" + data.Value);
+                    }
+                }
+
+                // thisにしかないセクションを書き出す必要がある
+                foreach (IniSection section in quotient.Sections.Values)
+                {
+                    if (other.Sections.ContainsKey(section.SectionName)) { continue; }
+                    // セクション書き出し
+                    writer.WriteLine("[" + section.SectionName + "]");
+                    foreach (IniData data in section.Keys.Values)
+                    {
+                        // コメント書き出し
+                        if (outputComment && data.Comment != "")
+                        {
+                            foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
+                            {
+                                writer.WriteLine(";" + comment);
+                            }
+                        }
+                        // キー＆値書き出し
+                        writer.WriteLine(data.KeyName + "=" + data.Value);
+                    }
+                }
+            }
+
+        }
+
+        private IEnumerable<string> readFileLines(string path)
+        {
+            Encoding encoding = Encoding.GetEncoding("Shift_JIS");
+            using (StreamReader reader = new StreamReader(path, encoding))
+            {
+                while (!reader.EndOfStream)
+                {
+                    yield return reader.ReadLine();
+                }
+            }
         }
     }
 }
