@@ -104,6 +104,7 @@ namespace IniUtils
                 if (line.IndexOf(";") == 0)
                 {
                     yield return line;
+                    continue;
                 }
 
                 // 意味をなさない行
@@ -131,7 +132,7 @@ namespace IniUtils
             foreach (string line in lines)
             {
                 // セクションを見つけたら
-                if (line.IndexOf("[") > -1 && line.IndexOf("]") > -1)
+                if (line.StartsWith("[") && line.IndexOf("]") > -1)
                 {
                     int start = line.IndexOf("[") + 1;
                     int length = line.IndexOf("]") - start;
