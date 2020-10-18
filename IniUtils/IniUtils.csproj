@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IniData.cs" />
+    <Compile Include="IniDataAttribute.cs" />
     <Compile Include="IniDataList.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="IniFileList.cs" />
