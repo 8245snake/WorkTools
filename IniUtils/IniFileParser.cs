@@ -28,10 +28,10 @@ namespace IniUtils
 
             foreach (IniSection section in getSections(lines, fileName))
             {
-                if (! iniFile.Sections.ContainsKey(section.SectionName))
+                if (!iniFile.Sections.ContainsKey(section.SectionName))
                 {
                     iniFile.Sections.Add(section.SectionName, section);
-                } 
+                }
             }
             return iniFile;
         }
@@ -94,21 +94,8 @@ namespace IniUtils
             {
                 string line = item.Trim();
 
-                // 空白行
-                if (line.Length < 1)
-                {
-                    continue;
-                }
-
-                // コメント行なら通す
-                if (line.IndexOf(";") == 0)
-                {
-                    yield return line;
-                    continue;
-                }
-
                 // 意味をなさない行
-                if (line.IndexOf("=") < 0 && line.IndexOf("[") < 0 && line.IndexOf("]") < 0)
+                if (!IsCommentLine(line) && !IsSectionLine(line) && !IsKeyValueLine(line))
                 {
                     continue;
                 }
@@ -132,11 +119,8 @@ namespace IniUtils
             foreach (string line in lines)
             {
                 // セクションを見つけたら
-                if (line.StartsWith("[") && line.IndexOf("]") > -1)
+                if (IsSectionLine(line, ref sectionName))
                 {
-                    int start = line.IndexOf("[") + 1;
-                    int length = line.IndexOf("]") - start;
-                    sectionName = line.Substring(start, length);
                     if (section == null)
                     {
                         // １回目しか通らない
@@ -152,22 +136,22 @@ namespace IniUtils
                 }
 
                 // コメントならばキャッシュし、次に見つかるキーまで保持
-                if (line.IndexOf(";") == 0 )
+                string commnet = "";
+                if (IsCommentLine(line, ref commnet))
                 {
-                    comments.Add(line.Trim(';'));
+                    comments.Add(commnet);
                     continue;
                 }
 
-                int indexOfEqual = line.IndexOf("=");
-                if (indexOfEqual < 0)
+                // キーを見つけたらセクションに追加
+                string key ="", value = "";
+                if (!IsKeyValueLine(line, ref key, ref value))
                 {
                     continue;
                 }
-                string key = line.Substring(0, indexOfEqual).Trim();
                 // Keyも先勝ち
                 if (!section.Keys.ContainsKey(key))
                 {
-                    string value = line.Substring(indexOfEqual + 1).Trim();
                     IniData ini = new IniData(fileName, sectionName, key, value, string.Join("\r\n", comments));
                     section.Keys.Add(ini);
                     comments.Clear();
@@ -177,6 +161,61 @@ namespace IniUtils
             {
                 yield return section;
             }
+        }
+
+        /// <summary>
+        /// その行がセクションかを判定し、OUT引数に返す
+        /// </summary>
+        /// <param name="line">判定する行</param>
+        /// <param name="sectionName">セクション名返却用</param>
+        /// <returns>セクションならtrue</returns>
+        public static bool IsSectionLine(string line, ref string sectionName)
+        {
+            // セクションを見つけたら
+            if (line.StartsWith("[") && line.IndexOf("]") > -1)
+            {
+                int start = 1;
+                int length = line.IndexOf("]") - start;
+                sectionName = line.Substring(start, length);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsSectionLine(string line)
+        {
+            return (line.StartsWith("[") && line.IndexOf("]") > -1);
+        }
+
+        public static bool IsCommentLine(string line, ref string commnet)
+        {
+            if (line.StartsWith(";"))
+            {
+                commnet = line.TrimStart(';');
+                return true;
+            }
+            return false;
+        }
+        public static bool IsCommentLine(string line)
+        {
+            return (line.StartsWith(";"));
+        }
+
+        public static bool IsKeyValueLine(string line, ref string key, ref string value)
+        {
+            int indexOfEqual = line.IndexOf("=");
+            if (indexOfEqual < 0)
+            {
+                return false;
+            }
+            key = line.Substring(0, indexOfEqual).Trim();
+            value = line.Substring(indexOfEqual + 1).Trim();
+            return true;
+        }
+
+        public static bool IsKeyValueLine(string line)
+        {
+            return (line.IndexOf("=") > 0);
         }
 
         #endregion
