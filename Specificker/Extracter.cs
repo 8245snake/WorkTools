@@ -9,17 +9,26 @@ using IniUtils;
 
 namespace Specificker
 {
-    class Extracter
+    public class Extracter
     {
+        public enum ExecOperationMode
+        {
+            Add = 0,
+            Sub,
+            Exclusive
+        }
+
         private string _inputPath1;
         private string _inputPath2;
         private string _outputPath;
+        private ExecOperationMode _Mode;
 
-        public Extracter(string input1, string input2 , string output)
+        public Extracter(string input1, string input2 , string output, ExecOperationMode Mode)
         {
             _inputPath1 = input1;
             _inputPath2 = input2;
             _outputPath = output;
+            _Mode = Mode;
         }
 
         public void ExtractFile(BackgroundWorker bw)
@@ -30,11 +39,26 @@ namespace Specificker
             
             IniFile ini2 = IniFileParser.ParseIniFile(_inputPath2);
             bw.ReportProgress(50);
-            
-            IniFile sub = ini1 - ini2;
+
+            IniFile result = null;
+            switch (_Mode)
+            {
+                case ExecOperationMode.Add:
+                    result = ini1 + ini2;
+                    break;
+                case ExecOperationMode.Sub:
+                    result = ini1 - ini2;
+                    break;
+                case ExecOperationMode.Exclusive:
+                    result = ini1 / ini2;
+                    break;
+                default:
+                    break;
+            }
+
             bw.ReportProgress(75);
 
-            sub.OutputIniFile(Path.Combine(_outputPath, sub.FileName), true);
+            result.OutputIniFile(Path.Combine(_outputPath, result.FileName), true);
             bw.ReportProgress(100);
         }
 
@@ -46,11 +70,26 @@ namespace Specificker
             
             IniFileList Files2 = IniFileParser.ParseIniFolder(_inputPath2);
             bw.ReportProgress(50);
-            
-            IniFileList sub = Files1 - Files2;
+
+            IniFileList result = null;
+            switch (_Mode)
+            {
+                case ExecOperationMode.Add:
+                    result = Files1 + Files2;
+                    break;
+                case ExecOperationMode.Sub:
+                    result = Files1 - Files2;
+                    break;
+                case ExecOperationMode.Exclusive:
+                    result = Files1 / Files2;
+                    break;
+                default:
+                    break;
+            }
+
             bw.ReportProgress(75);
-            
-            sub.OutputAll(_outputPath);
+
+            result.OutputAll(_outputPath);
             bw.ReportProgress(100);
         }
     }

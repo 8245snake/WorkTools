@@ -14,7 +14,15 @@ namespace Specificker
 {
     public partial class frmMain : Form
     {
+        
+
         private Configuration _config;
+
+        private string _Input1 = "";
+        private string _Input2 = "";
+        private string _OutputDir = "";
+        private Extracter.ExecOperationMode _Mode;
+
 
         public frmMain()
         {
@@ -248,7 +256,28 @@ namespace Specificker
             // 画面ロック
             enableAllControl(false);
 
-            bgworkerMain.RunWorkerAsync(txtOutput.Text);
+            _Input1 = txtInput1.Text;
+            _Input2 = txtInput2.Text;
+            _OutputDir = txtOutput.Text;
+            if (optAdd.Checked)
+            {
+                _Mode = Extracter.ExecOperationMode.Add;
+            }
+            else if (optSub.Checked)
+            {
+                _Mode = Extracter.ExecOperationMode.Sub;
+            }
+            else if (optExclusive.Checked)
+            {
+                _Mode = Extracter.ExecOperationMode.Exclusive;
+            }
+            else
+            {
+                MessageBox.Show("入力値が足りません");
+                return;
+            }
+
+            bgworkerMain.RunWorkerAsync();
 
         }
 
@@ -269,8 +298,8 @@ namespace Specificker
         {
             BackgroundWorker bw = sender as BackgroundWorker;
             bw.ReportProgress(0);
-            string saveFolder = (string)e.Argument;
-            Extracter extracter = new Extracter(txtInput1.Text, txtInput2.Text, saveFolder);
+
+            Extracter extracter = new Extracter(_Input1, _Input2, _OutputDir, _Mode);
             if (opbDirectory.Checked)
             {
                 extracter.ExtractFolder(bw);
@@ -309,9 +338,11 @@ namespace Specificker
             lblProgress.Text = "完了";
         }
 
-        private void txtInput1_TextChanged(object sender, EventArgs e)
+        private void btnSwitch_Click(object sender, EventArgs e)
         {
-
+            string tmp = txtInput1.Text;
+            txtInput1.Text = txtInput2.Text;
+            txtInput2.Text = tmp;
         }
     }
 }

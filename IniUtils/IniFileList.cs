@@ -24,7 +24,19 @@ namespace IniUtils
                 return null;
             }
 
-            set => throw new NotImplementedException();
+            set
+            {
+                List<IniFile> list = new List<IniFile>();
+                foreach (IniFile file in _list)
+                {
+                    if (file.FileName.ToUpper() != fileName.ToUpper())
+                    {
+                        list.Add(file);
+                    }
+                }
+                list.Add(value);
+                _list = list;
+            }
         }
 
         public ICollection<string> Keys {
@@ -192,6 +204,31 @@ namespace IniUtils
                 {
                     // 引かれる方と引く方にある場合は差分だけ残す
                     IniFile sub = file - subtrahend[fileName];
+                    if (sub.Sections.Count > 0)
+                    {
+                        result.Add(sub);
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static IniFileList operator /(IniFileList minuend, IniFileList subtrahend)
+        {
+            IniFileList result = new IniFileList();
+            // 引かれる方のリストで回す
+            foreach (IniFile file in minuend.Values)
+            {
+                string fileName = file.FileName;
+                if (!subtrahend.ContainsKey(fileName))
+                {
+                    // 引かれる方にだけある要素なら残す
+                    result.Add(file);
+                }
+                else
+                {
+                    // 引かれる方と引く方にある場合は差分だけ残す
+                    IniFile sub = file / subtrahend[fileName];
                     if (sub.Sections.Count > 0)
                     {
                         result.Add(sub);
