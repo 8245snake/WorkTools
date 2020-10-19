@@ -136,6 +136,14 @@ namespace IniUtils
             }
         }
 
+        public void MergeAll(string directory)
+        {
+            foreach (IniFile file in _list)
+            {
+                file.MergeIniFile(directory, true);
+            }
+        }
+
         /// <summary>
         /// 加算
         /// </summary>

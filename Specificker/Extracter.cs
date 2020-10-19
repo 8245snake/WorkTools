@@ -33,8 +33,9 @@ namespace Specificker
             
             IniFile sub = ini1 - ini2;
             bw.ReportProgress(75);
-            
-            sub.Export(_outputPath);
+
+            //sub.Export(_outputPath);
+            sub.MergeIniFile(_outputPath, true);
             bw.ReportProgress(100);
         }
 
@@ -50,7 +51,7 @@ namespace Specificker
             IniFileList sub = Files1 - Files2;
             bw.ReportProgress(75);
             
-            sub.ExportAll(_outputPath);
+            sub.MergeAll(_outputPath);
             bw.ReportProgress(100);
         }
     }

@@ -112,7 +112,7 @@ namespace IniUtils
             string sectionName = "";
             string sectionName_save = "";
             bool sectionHitFlg = false;
-            string tmpPath = @"C:\Users\USER\Documents\tmp.ini";
+            string tmpPath = @"specifickertmp.ini";
             // 一時ファイルに書き込み
             using (StreamWriter writer = new StreamWriter(tmpPath, true, encoding))
             {
@@ -131,8 +131,17 @@ namespace IniUtils
                         if (sectionHitFlg && sectionName_save != "") {
                             // このときはセクションの終わりに到達したときなので
                             // thisにしかないキーを書き出す必要がある
-                            foreach (IniData data in quotient.Sections[sectionName_save].Keys.Values)
+                            foreach (IniData data in diff.Sections[sectionName_save].Keys.Values)
                             {
+                                if (!quotient.Sections.ContainsKey(sectionName_save)) {
+                                    continue;
+                                }
+
+                                if (!quotient.Sections[sectionName_save].Keys.ContainsKey(data.KeyName))
+                                {
+                                    continue;
+                                }
+
                                 // コメント書き出し
                                 if (outputComment && data.Comment != "")
                                 {
@@ -222,6 +231,7 @@ namespace IniUtils
                 }
             }
 
+            File.Replace(tmpPath, path, path + ".bk", true);
         }
 
         private IEnumerable<string> readFileLines(string path)
