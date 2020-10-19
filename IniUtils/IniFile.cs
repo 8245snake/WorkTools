@@ -62,12 +62,24 @@ namespace IniUtils
             return result;
         }
 
+        public void OutputIniFile(string path, bool outputComment)
+        {
+            if (File.Exists(path))
+            {
+                MergeIniFile(path, outputComment);
+            }
+            else
+            {
+                WriteNewFile(path, outputComment);
+            }
+        }
+
         /// <summary>
         /// 設定をすべて書き出す
         /// </summary>
         /// <param name="path">書き出すファイルパス（既にあれば上書きされる）</param>
         /// <param name="outputComment">コメントも書き出すか</param>
-        public void WriteNewFile(string path, bool outputComment)
+        private void WriteNewFile(string path, bool outputComment)
         {
             Encoding encoding = Encoding.GetEncoding("Shift_JIS");
             using (StreamWriter writer = new StreamWriter(path, false, encoding))
@@ -100,7 +112,7 @@ namespace IniUtils
         /// </summary>
         /// <param name="path"></param>
         /// <param name="outputComment"></param>
-        public void MergeIniFile(string path, bool outputComment)
+        private void MergeIniFile(string path, bool outputComment)
         {
             // 書き込む相手との差分を計算しておく
             IniFile other = IniFileParser.ParseIniFile(path);
@@ -112,11 +124,12 @@ namespace IniUtils
             string sectionName = "";
             string sectionName_save = "";
             bool sectionHitFlg = false;
-            string tmpPath = @"specifickertmp.ini";
+            string tmpPath = path + ".tmp";
+            File.Delete(tmpPath);
             // 一時ファイルに書き込み
             using (StreamWriter writer = new StreamWriter(tmpPath, true, encoding))
             {
-                foreach (string line in readFileLines(path))
+                foreach (string line in ReadFileLines(path))
                 {
 
                     if (line.Trim() == "" || (!IniFileParser.IsCommentLine(line) && !IniFileParser.IsSectionLine(line) && !IniFileParser.IsKeyValueLine(line)))
@@ -194,8 +207,18 @@ namespace IniUtils
                 {
                     // このときはセクションの終わりに到達したときなので
                     // thisにしかないキーを書き出す必要がある
-                    foreach (IniData data in quotient.Sections[sectionName_save].Keys.Values)
+                    foreach (IniData data in diff.Sections[sectionName_save].Keys.Values)
                     {
+                        if (!quotient.Sections.ContainsKey(sectionName_save))
+                        {
+                            continue;
+                        }
+
+                        if (!quotient.Sections[sectionName_save].Keys.ContainsKey(data.KeyName))
+                        {
+                            continue;
+                        }
+
                         // コメント書き出し
                         if (outputComment && data.Comment != "")
                         {
@@ -231,10 +254,14 @@ namespace IniUtils
                 }
             }
 
-            File.Replace(tmpPath, path, path + ".bk", true);
+            string bkPath = path + ".bk";
+            File.Delete(bkPath);
+            File.Move(path, bkPath);
+            File.Move(tmpPath, path);
+            File.Delete(bkPath);
         }
 
-        private IEnumerable<string> readFileLines(string path)
+        private IEnumerable<string> ReadFileLines(string path)
         {
             Encoding encoding = Encoding.GetEncoding("Shift_JIS");
             using (StreamReader reader = new StreamReader(path, encoding))

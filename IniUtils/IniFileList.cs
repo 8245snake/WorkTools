@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace IniUtils
@@ -136,11 +136,11 @@ namespace IniUtils
             }
         }
 
-        public void MergeAll(string directory)
+        public void OutputAll(string directory)
         {
             foreach (IniFile file in _list)
             {
-                file.MergeIniFile(directory, true);
+                file.OutputIniFile(Path.Combine(directory, file.FileName), true);
             }
         }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.IO;
 using System.Threading.Tasks;
 using IniUtils;
 
@@ -34,8 +34,7 @@ namespace Specificker
             IniFile sub = ini1 - ini2;
             bw.ReportProgress(75);
 
-            //sub.Export(_outputPath);
-            sub.MergeIniFile(_outputPath, true);
+            sub.OutputIniFile(Path.Combine(_outputPath, sub.FileName), true);
             bw.ReportProgress(100);
         }
 
@@ -51,7 +50,7 @@ namespace Specificker
             IniFileList sub = Files1 - Files2;
             bw.ReportProgress(75);
             
-            sub.MergeAll(_outputPath);
+            sub.OutputAll(_outputPath);
             bw.ReportProgress(100);
         }
     }
