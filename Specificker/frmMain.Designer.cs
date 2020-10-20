@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.opbDirectory = new System.Windows.Forms.RadioButton();
             this.opbFile = new System.Windows.Forms.RadioButton();
@@ -327,6 +328,7 @@
             this.Controls.Add(this.txtInput1);
             this.Controls.Add(this.groupBox1);
             this.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
             this.Name = "frmMain";
             this.Text = "Specificker";

@@ -59,5 +59,15 @@ namespace Specificker.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   (アイコン) に類似した型 System.Drawing.Icon のローカライズされたリソースを検索します。
+        /// </summary>
+        internal static System.Drawing.Icon specificker {
+            get {
+                object obj = ResourceManager.GetObject("specificker", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
