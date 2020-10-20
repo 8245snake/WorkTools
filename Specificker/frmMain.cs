@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Configuration;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Specificker
 {
@@ -261,15 +263,15 @@ namespace Specificker
             _OutputDir = txtOutput.Text;
             if (optAdd.Checked)
             {
-                _Mode = Extracter.ExecOperationMode.Add;
+                _Mode = Extracter.ExecOperationMode.Addition;
             }
             else if (optSub.Checked)
             {
-                _Mode = Extracter.ExecOperationMode.Sub;
+                _Mode = Extracter.ExecOperationMode.Subtraction;
             }
             else if (optExclusive.Checked)
             {
-                _Mode = Extracter.ExecOperationMode.Exclusive;
+                _Mode = Extracter.ExecOperationMode.Exclusion;
             }
             else
             {
@@ -343,6 +345,13 @@ namespace Specificker
             string tmp = txtInput1.Text;
             txtInput1.Text = txtInput2.Text;
             txtInput2.Text = tmp;
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            this.Text = string.Format("Specificker (ver. {0})", ver.FileVersion);
+
         }
     }
 }

@@ -13,9 +13,9 @@ namespace Specificker
     {
         public enum ExecOperationMode
         {
-            Add = 0,
-            Sub,
-            Exclusive
+            Addition = 0,
+            Subtraction,
+            Exclusion
         }
 
         private string _inputPath1;
@@ -43,13 +43,13 @@ namespace Specificker
             IniFile result = null;
             switch (_Mode)
             {
-                case ExecOperationMode.Add:
+                case ExecOperationMode.Addition:
                     result = ini1 + ini2;
                     break;
-                case ExecOperationMode.Sub:
+                case ExecOperationMode.Subtraction:
                     result = ini1 - ini2;
                     break;
-                case ExecOperationMode.Exclusive:
+                case ExecOperationMode.Exclusion:
                     result = ini1 / ini2;
                     break;
                 default:
@@ -58,7 +58,13 @@ namespace Specificker
 
             bw.ReportProgress(75);
 
-            result.OutputIniFile(Path.Combine(_outputPath, result.FileName), true);
+            string path = _outputPath;
+            if (Directory.Exists(_outputPath))
+            {
+                path = Path.Combine(_outputPath, result.FileName);
+            }
+
+            result.OutputIniFile(path, true);
             bw.ReportProgress(100);
         }
 
@@ -74,13 +80,13 @@ namespace Specificker
             IniFileList result = null;
             switch (_Mode)
             {
-                case ExecOperationMode.Add:
+                case ExecOperationMode.Addition:
                     result = Files1 + Files2;
                     break;
-                case ExecOperationMode.Sub:
+                case ExecOperationMode.Subtraction:
                     result = Files1 - Files2;
                     break;
-                case ExecOperationMode.Exclusive:
+                case ExecOperationMode.Exclusion:
                     result = Files1 / Files2;
                     break;
                 default:

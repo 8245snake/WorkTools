@@ -46,9 +46,9 @@
             this.txtOutput = new System.Windows.Forms.TextBox();
             this.btnSwitch = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.optAdd = new System.Windows.Forms.RadioButton();
-            this.optSub = new System.Windows.Forms.RadioButton();
             this.optExclusive = new System.Windows.Forms.RadioButton();
+            this.optSub = new System.Windows.Forms.RadioButton();
+            this.optAdd = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -271,29 +271,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "演算";
             // 
-            // optAdd
-            // 
-            this.optAdd.AutoSize = true;
-            this.optAdd.Location = new System.Drawing.Point(18, 85);
-            this.optAdd.Name = "optAdd";
-            this.optAdd.Size = new System.Drawing.Size(314, 19);
-            this.optAdd.TabIndex = 0;
-            this.optAdd.TabStop = true;
-            this.optAdd.Text = "足し合わせ（①と②の和集合です。①の値が優先されます）";
-            this.optAdd.UseVisualStyleBackColor = true;
-            // 
-            // optSub
-            // 
-            this.optSub.AutoSize = true;
-            this.optSub.Checked = true;
-            this.optSub.Location = new System.Drawing.Point(18, 27);
-            this.optSub.Name = "optSub";
-            this.optSub.Size = new System.Drawing.Size(515, 19);
-            this.optSub.TabIndex = 1;
-            this.optSub.TabStop = true;
-            this.optSub.Text = "差分（①のみに存在する要素と、①と②の両方に存在する要素を抽出します。①の値が優先されます）";
-            this.optSub.UseVisualStyleBackColor = true;
-            // 
             // optExclusive
             // 
             this.optExclusive.AutoSize = true;
@@ -304,6 +281,29 @@
             this.optExclusive.TabStop = true;
             this.optExclusive.Text = "排他（①のみに存在する要素を抽出します）";
             this.optExclusive.UseVisualStyleBackColor = true;
+            // 
+            // optSub
+            // 
+            this.optSub.AutoSize = true;
+            this.optSub.Checked = true;
+            this.optSub.Location = new System.Drawing.Point(18, 27);
+            this.optSub.Name = "optSub";
+            this.optSub.Size = new System.Drawing.Size(508, 19);
+            this.optSub.TabIndex = 1;
+            this.optSub.TabStop = true;
+            this.optSub.Text = "差分（①のみに存在する要素と、①と②の両方に存在するが値が異なる要素の①の値を抽出します）";
+            this.optSub.UseVisualStyleBackColor = true;
+            // 
+            // optAdd
+            // 
+            this.optAdd.AutoSize = true;
+            this.optAdd.Location = new System.Drawing.Point(18, 85);
+            this.optAdd.Name = "optAdd";
+            this.optAdd.Size = new System.Drawing.Size(395, 19);
+            this.optAdd.TabIndex = 0;
+            this.optAdd.TabStop = true;
+            this.optAdd.Text = "合算（①と②の和集合です。両方に存在する場合は①の値が優先されます）";
+            this.optAdd.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
@@ -330,6 +330,7 @@
             this.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
             this.Name = "frmMain";
             this.Text = "Specificker";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.Shown += new System.EventHandler(this.frmMain_Shown);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
