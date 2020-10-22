@@ -17,6 +17,14 @@ namespace IniUtils
             FileName = fileName;
         }
 
+        public IEnumerable<IniSection> GetIniSections()
+        {
+            foreach (IniSection item in Sections.GetIniSections())
+            {
+                yield return item;
+            }
+        }
+
         public void Export(string directory)
         {
             Sections.ExportAll(directory);
@@ -84,27 +92,8 @@ namespace IniUtils
             Encoding encoding = Encoding.GetEncoding("Shift_JIS");
             using (StreamWriter writer = new StreamWriter(path, false, encoding))
             {
-                foreach (IniSection section in Sections.Values)
-                {
-                    // セクション書き出し
-                    writer.WriteLine("[" + section.SectionName + "]");
-                    foreach (IniData data in section.Keys.Values)
-                    {
-                        // コメント書き出し
-                        if (outputComment && data.Comment != "")
-                        {
-                            string[] del = { "\r\n" };
-                            foreach (string line in data.Comment.Split(del, StringSplitOptions.None))
-                            {
-                                writer.WriteLine(";" + line);
-                            }
-                        }
-                        // キー＆値書き出し
-                        writer.WriteLine(data.KeyName + "=" + data.Value);
-                    }
-                }
+                Sections.WriteAll(writer, outputComment);
             }
-
         }
 
         /// <summary>
@@ -144,27 +133,11 @@ namespace IniUtils
                         if (sectionHitFlg && sectionName_save != "") {
                             // このときはセクションの終わりに到達したときなので
                             // thisにしかないキーを書き出す必要がある
-                            foreach (IniData data in diff.Sections[sectionName_save].Keys.Values)
+                            foreach (IniData data in diff.Sections[sectionName_save].GetIniValues())
                             {
-                                if (!quotient.Sections.ContainsKey(sectionName_save)) {
-                                    continue;
-                                }
-
-                                if (!quotient.Sections[sectionName_save].Keys.ContainsKey(data.KeyName))
-                                {
-                                    continue;
-                                }
-
-                                // コメント書き出し
-                                if (outputComment && data.Comment != "")
-                                {
-                                    foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
-                                    {
-                                        writer.WriteLine(";" + comment);
-                                    }
-                                }
-                                // キー＆値書き出し
-                                writer.WriteLine(data.KeyName + "=" + data.Value);
+                                if (quotient.Sections[sectionName_save]?.Keys[data.KeyName] == null) { continue; }
+                                // ini書き出し
+                                data.Write(writer, outputComment);
                             }
                         }
 
@@ -185,16 +158,8 @@ namespace IniUtils
                                 IniData data = diff.Sections[sectionName].Keys[key];
                                 IniData otherComment = other.Sections[sectionName].Keys[key];
 
-                                // コメント書き出し
-                                if (outputComment && data.Comment != "" && otherComment.Comment != data.Comment)
-                                {
-                                    foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
-                                    {
-                                        writer.WriteLine(";" + comment);
-                                    }
-                                }
-                                // キー＆値書き出し
-                                writer.WriteLine(data.KeyName + "=" + data.Value);
+                                // ini書き出し
+                                data.Write(writer, outputComment && otherComment.Comment != data.Comment);
                                 continue;
                             }
                         }
@@ -207,53 +172,23 @@ namespace IniUtils
                 {
                     // このときはセクションの終わりに到達したときなので
                     // thisにしかないキーを書き出す必要がある
-                    foreach (IniData data in diff.Sections[sectionName_save].Keys.Values)
+                    foreach (IniData data in diff.Sections[sectionName_save].GetIniValues())
                     {
-                        if (!quotient.Sections.ContainsKey(sectionName_save))
-                        {
-                            continue;
-                        }
-
-                        if (!quotient.Sections[sectionName_save].Keys.ContainsKey(data.KeyName))
-                        {
-                            continue;
-                        }
-
-                        // コメント書き出し
-                        if (outputComment && data.Comment != "")
-                        {
-                            foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
-                            {
-                                writer.WriteLine(";" + comment);
-                            }
-                        }
-                        // キー＆値書き出し
-                        writer.WriteLine(data.KeyName + "=" + data.Value);
+                        if (quotient.Sections[sectionName_save]?.Keys[data.KeyName] == null) { continue; }
+                        // ini書き出し
+                        data.Write(writer, outputComment);
                     }
                 }
 
-                // thisにしかないセクションを書き出す必要がある
-                foreach (IniSection section in quotient.Sections.Values)
+                // 最後に、thisにしかないセクションを書き出す
+                foreach (IniSection section in quotient.GetIniSections()
+                    .Where(section => ! other.Sections.ContainsKey(section.SectionName)))
                 {
-                    if (other.Sections.ContainsKey(section.SectionName)) { continue; }
-                    // セクション書き出し
-                    writer.WriteLine("[" + section.SectionName + "]");
-                    foreach (IniData data in section.Keys.Values)
-                    {
-                        // コメント書き出し
-                        if (outputComment && data.Comment != "")
-                        {
-                            foreach (string comment in data.Comment.Split(del, StringSplitOptions.None))
-                            {
-                                writer.WriteLine(";" + comment);
-                            }
-                        }
-                        // キー＆値書き出し
-                        writer.WriteLine(data.KeyName + "=" + data.Value);
-                    }
+                    section.Write(writer, outputComment);
                 }
             }
 
+            // ファイルに書き込み
             string bkPath = path + ".bk";
             File.Delete(bkPath);
             File.Move(path, bkPath);

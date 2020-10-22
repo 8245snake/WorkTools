@@ -7,52 +7,24 @@ using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniFileList : IDictionary<string, IniFile>, ICollection<IniFile>
+    public class IniFileList : IDictionary<string, IniFile>, ICollection<IniFile>, IEnumerable<IniFile>
     {
         public List<IniFile> _list = new List<IniFile>();
 
         public IniFile this[string fileName] {
-            get
-            {
-                foreach (IniFile file in _list)
-                {
-                    if (file.FileName.ToUpper() == fileName.ToUpper())
-                    {
-                        return file;
-                    }
-                }
-                return null;
-            }
+            get => _list.Where(ini => ini.FileName.ToUpper() == fileName.ToUpper()).FirstOrDefault();
 
             set
             {
-                List<IniFile> list = new List<IniFile>();
-                foreach (IniFile file in _list)
-                {
-                    if (file.FileName.ToUpper() != fileName.ToUpper())
-                    {
-                        list.Add(file);
-                    }
-                }
+                List<IniFile> list = _list.Where(ini => ini.FileName.ToUpper() != fileName.ToUpper()).ToList();
                 list.Add(value);
                 _list = list;
             }
         }
 
-        public ICollection<string> Keys {
-            get {
+        public ICollection<string> Keys { get => _list.Select(x => x.FileName).ToList(); }
 
-                return _list.Select(x => x.FileName).ToList();
-            }
-        }
-
-        public ICollection<IniFile> Values
-        {
-            get
-            {
-                return _list;
-            }
-        }
+        public ICollection<IniFile> Values { get => _list; }
 
         public int Count => _list.Count;
 
@@ -95,37 +67,48 @@ namespace IniUtils
 
         public void CopyTo(KeyValuePair<string, IniFile>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _list.CopyTo(array.Select(s => s.Value).ToArray(), arrayIndex);
         }
 
         public void CopyTo(IniFile[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _list.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<KeyValuePair<string, IniFile>> GetEnumerator()
         {
-            throw new NotImplementedException();
+            foreach (IniFile ini in _list)
+            {
+                yield return new KeyValuePair<string, IniFile>(ini.FileName, ini);
+            }
         }
 
         public bool Remove(string key)
         {
-            throw new NotImplementedException();
+            // キー名が一致するもの全て削除する
+            return _list.RemoveAll(ini => ini.FileName.ToUpper() == key.ToUpper()) > 0;
         }
 
         public bool Remove(KeyValuePair<string, IniFile> item)
         {
-            throw new NotImplementedException();
+            // キー名が一致するもの全て削除する
+            return _list.RemoveAll(ini => item.Value.FileName.ToUpper() == ini.FileName.ToUpper()) > 0;
         }
 
         public bool Remove(IniFile item)
         {
-            throw new NotImplementedException();
+            return _list.Remove(item);
         }
 
         public bool TryGetValue(string key, out IniFile value)
         {
-            throw new NotImplementedException();
+            if (ContainsKey(key))
+            {
+                value = this[key];
+                return true;
+            }
+            value = null;
+            return false;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -140,6 +123,15 @@ namespace IniUtils
                 yield return file;
             }
         }
+
+        public IEnumerable<IniFile> GetIniFiles()
+        {
+            foreach (IniFile item in _list)
+            {
+                yield return item;
+            }
+        }
+
         public void ExportAll(string directory)
         {
             foreach (IniFile file in _list)
@@ -147,6 +139,8 @@ namespace IniUtils
                 file.Export(directory);
             }
         }
+
+
 
         public void OutputAll(string directory)
         {

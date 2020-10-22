@@ -1,29 +1,25 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniDataList : IDictionary<string, IniData>, ICollection<IniData>
+    public class IniDataList : IDictionary<string, IniData>, ICollection<IniData>, IEnumerable<IniData>
     {
         public List<IniData> _list = new List<IniData>();
 
         public IniData this[string key] {
-            get {
-                foreach (IniData ini in _list)
-                {
-                    if (ini.KeyName.ToUpper() == key.ToUpper())
-                    {
-                        return ini;
-                    }
-                }
-                return null;
+            get => _list.Where(ini => ini.KeyName.ToUpper() == key.ToUpper()).FirstOrDefault();
+
+            set {
+                List<IniData> list = _list.Where(ini => ini.KeyName.ToUpper() != key.ToUpper()).ToList();
+                list.Add(value);
+                _list = list;
             }
-            // setは使用しない
-            set => throw new NotImplementedException();
         }
 
         public ICollection<IniData> Values => _list;
@@ -32,19 +28,9 @@ namespace IniUtils
 
         public bool IsReadOnly => false;
 
-        ICollection<string> IDictionary<string, IniData>.Keys {
-            get
-            {
-                return Keys;
-            }
-        }
+        ICollection<string> IDictionary<string, IniData>.Keys { get => Keys; }
 
-        public ICollection<string> Keys {
-            get
-            {
-                return _list.Select(x => x.KeyName).ToList();
-            }
-        }
+        public ICollection<string> Keys { get => _list.Select(x => x.KeyName).ToList(); }
 
         public void Add(string key, IniData value)
         {
@@ -68,7 +54,7 @@ namespace IniUtils
 
         public bool Contains(KeyValuePair<string, IniData> item)
         {
-            throw new NotImplementedException();
+            return _list.Contains(item.Value);
         }
 
         public bool Contains(IniData item)
@@ -83,12 +69,12 @@ namespace IniUtils
 
         public void CopyTo(KeyValuePair<string, IniData>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _list.CopyTo(array.Select(s => s.Value).ToArray(), arrayIndex);
         }
 
         public void CopyTo(IniData[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _list.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<KeyValuePair<string, IniData>> GetEnumerator()
@@ -102,20 +88,18 @@ namespace IniUtils
         public bool Remove(string key)
         {
             // キー名が一致するするもの全て削除する
-            return _list.RemoveAll(ini => ini.KeyName == key) > 0;
+            return _list.RemoveAll(ini => ini.KeyName.ToUpper() == key.ToUpper()) > 0;
         }
 
         public bool Remove(KeyValuePair<string, IniData> item)
         {
             // キー名と値が一致するするもの全て削除する
-            return _list.RemoveAll(ini => item.Value.KeyName == ini.KeyName && item.Value.Value == ini.Value) > 0;
+            return _list.RemoveAll(ini => item.Value.KeyName.ToUpper() == ini.KeyName.ToUpper() && item.Value.Value.ToUpper() == ini.Value.ToUpper()) > 0;
         }
 
         public bool Remove(IniData item)
         {
-            // キー名と値が一致するするもの全て削除する
-            return _list.RemoveAll(ini => item.KeyName == ini.KeyName && item.Value == ini.Value) > 0;
-
+            return _list.Remove(item);
         }
 
         public bool TryGetValue(string key, out IniData value)
@@ -139,11 +123,28 @@ namespace IniUtils
             return _list.GetEnumerator();
         }
 
+        public IEnumerable<IniData> GetIniValues()
+        {
+            foreach (IniData ini in _list)
+            {
+                yield return ini;
+            }
+        }
+
         public void ExportAll(string directory)
         {
             foreach (IniData ini in _list)
             {
                 ini.Export(directory);
+            }
+        }
+
+        public void WriteAll(StreamWriter writer, bool outputComment)
+        {
+            foreach (IniData data in _list)
+            {
+                // ini書き出し
+                data.Write(writer, outputComment);
             }
         }
 

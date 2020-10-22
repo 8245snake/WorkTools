@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,22 @@ namespace IniUtils
         {
             Keys.ExportAll(directory);
         }
+
+        public void Write(StreamWriter writer, bool outputComment)
+        {
+            // セクション書き出し
+            writer.WriteLine("[" + this.SectionName + "]");
+            Keys.WriteAll(writer, outputComment);
+        }
+
+        public IEnumerable<IniData> GetIniValues()
+        {
+            foreach (IniData item in Keys.GetIniValues())
+            {
+                yield return item;
+            }        
+        }
+
 
 
         /// <summary>

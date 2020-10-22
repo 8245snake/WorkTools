@@ -1,38 +1,29 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniSectionList : IDictionary<string, IniSection>, ICollection<IniSection>
+    public class IniSectionList : IDictionary<string, IniSection>, ICollection<IniSection>, IEnumerable<IniSection>
     {
         private List<IniSection> _list = new List<IniSection>();
 
         public IniSection this[string sectionName] {
-            get {
-                foreach (IniSection section in _list)
-                {
-                    if (section.SectionName.ToUpper() == sectionName.ToUpper())
-                    {
-                        return section;
-                    }
-                }
-                return null;
+            get => _list.Where(ini => ini.SectionName.ToUpper() == sectionName.ToUpper()).FirstOrDefault();
+
+            set
+            {
+                List<IniSection> list = _list.Where(ini => ini.SectionName.ToUpper() != sectionName.ToUpper()).ToList();
+                list.Add(value);
+                _list = list;
             }
-            
-            set => throw new NotImplementedException();
         }
 
-        public List<string> SectionNames
-        {
-            get
-            {
-                return _list.Select(x => x.SectionName).ToList();
-            }
-        }
+        public List<string> SectionNames { get => _list.Select(x => x.SectionName).ToList(); }
 
         public ICollection<string> Keys => SectionNames;
 
@@ -79,37 +70,48 @@ namespace IniUtils
 
         public void CopyTo(KeyValuePair<string, IniSection>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _list.CopyTo(array.Select(s => s.Value).ToArray(), arrayIndex);
         }
 
         public void CopyTo(IniSection[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            _list.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<KeyValuePair<string, IniSection>> GetEnumerator()
         {
-            throw new NotImplementedException();
+            foreach (IniSection ini in _list)
+            {
+                yield return new KeyValuePair<string, IniSection>(ini.SectionName, ini);
+            }
         }
 
         public bool Remove(string key)
         {
-            throw new NotImplementedException();
+            // キー名が一致するもの全て削除する
+            return _list.RemoveAll(ini => ini.SectionName.ToUpper() == key.ToUpper()) > 0;
         }
 
         public bool Remove(KeyValuePair<string, IniSection> item)
         {
-            throw new NotImplementedException();
+            // キー名が一致するもの全て削除する
+            return _list.RemoveAll(ini => item.Value.SectionName.ToUpper() == ini.SectionName.ToUpper()) > 0;
         }
 
         public bool Remove(IniSection item)
         {
-            throw new NotImplementedException();
+            return _list.Remove(item);
         }
 
         public bool TryGetValue(string key, out IniSection value)
         {
-            throw new NotImplementedException();
+            if (ContainsKey(key))
+            {
+                value = this[key];
+                return true;
+            }
+            value = null;
+            return false;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -124,11 +126,28 @@ namespace IniUtils
                 yield return item;
             }
         }
+
+        public IEnumerable<IniSection> GetIniSections()
+        {
+            foreach (IniSection item in _list)
+            {
+                yield return item;
+            }
+        }
+
         public void ExportAll(string directory)
         {
             foreach (IniSection section in _list)
             {
                 section.Export(directory);
+            }
+        }
+
+        public void WriteAll(StreamWriter writer, bool outputComment)
+        {
+            foreach (IniSection data in _list)
+            {
+                data.Write(writer, outputComment);
             }
         }
 

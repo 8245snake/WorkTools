@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Security;
-using System.ComponentModel;
 
 namespace IniUtils
 {
@@ -23,15 +21,15 @@ namespace IniUtils
             string fileName = Path.GetFileName(iniFilePath);
             IniFile iniFile = new IniFile(fileName);
 
-            IEnumerable<string> lines = readFileLines(iniFilePath);
-            lines = removeNoneSenceLine(lines);
+            IEnumerable<string> lines = ReadFileLines(iniFilePath);
+            lines = RemoveNoneSenceLine(lines);
 
-            foreach (IniSection section in getSections(lines, fileName))
+            foreach (IniSection section in ParseSections(lines, fileName))
             {
-                if (!iniFile.Sections.ContainsKey(section.SectionName))
-                {
-                    iniFile.Sections.Add(section.SectionName, section);
-                }
+                // 既に登録済みのセクションは弾く
+                if (iniFile.Sections.ContainsKey(section.SectionName)) { continue; }
+                // セクション追加
+                iniFile.Sections.Add(section.SectionName, section);
             }
             return iniFile;
         }
@@ -71,7 +69,7 @@ namespace IniUtils
         /// </summary>
         /// <param name="filePath">ファイルパス</param>
         /// <returns>１行分の文字列</returns>
-        private static IEnumerable<string> readFileLines(string filePath)
+        private static IEnumerable<string> ReadFileLines(string filePath)
         {
             using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.GetEncoding("shift_jis")))
             {
@@ -88,7 +86,7 @@ namespace IniUtils
         /// <param name="lines">１行分の文字列</param>
         /// <returns>意味のある１行分の文字列</returns>
         /// <remarks>空白行、セクションやキーとして成り立っていない行を消す。コメントは残す。</remarks>
-        private static IEnumerable<string> removeNoneSenceLine(IEnumerable<string> lines)
+        private static IEnumerable<string> RemoveNoneSenceLine(IEnumerable<string> lines)
         {
             foreach (string item in lines)
             {
@@ -110,7 +108,7 @@ namespace IniUtils
         /// <param name="lines">読みだした行</param>
         /// <param name="fileName">iniファイル名</param>
         /// <returns>セクション</returns>
-        private static IEnumerable<IniSection> getSections(IEnumerable<string> lines, string fileName)
+        private static IEnumerable<IniSection> ParseSections(IEnumerable<string> lines, string fileName)
         {
             string sectionName = "";
             IniSection section = null;
@@ -152,7 +150,7 @@ namespace IniUtils
                 // Keyも先勝ち
                 if (!section.Keys.ContainsKey(key))
                 {
-                    IniData ini = new IniData(fileName, sectionName, key, value, string.Join("\r\n", comments));
+                    IniData ini = new IniData(fileName, sectionName, key, value, string.Join("\r\n", comments), line);
                     section.Keys.Add(ini);
                     comments.Clear();
                 }
