@@ -31,6 +31,62 @@ namespace IniUtils
             Keys.WriteAll(writer, outputComment);
         }
 
+        public void Delete(string path, bool commentOut = true)
+        {
+            Encoding encoding = Encoding.GetEncoding("Shift_JIS");
+            string sectionName = "";
+            bool sectionHitFlg = false;
+            string tmpPath = path + ".tmp";
+            File.Delete(tmpPath);
+            // 一時ファイルに書き込み
+            using (StreamWriter writer = new StreamWriter(tmpPath, true, encoding))
+            {
+                foreach (string line in ReadFileLines(path))
+                {
+                    // セクション行かの判定
+                    if (IniFileParser.IsSectionLine(line, ref sectionName))
+                    {
+                        // 差分があるセクションか判定（このフラグはセクション行でのみ更新される）
+                        sectionHitFlg = this.SectionName == sectionName;
+                    }
+
+                    // 削除対象のセクション処理中
+                    if (sectionHitFlg)
+                    {
+                        if (commentOut)
+                        {
+                            // コメントアウト
+                            writer.WriteLine(";" + line);
+                        }
+                        continue;
+                        
+                    }
+
+                    // 削除対象ではないセクションはそのまま書き込む
+                    writer.WriteLine(line);
+                }
+            }
+
+            // ファイルに書き込み
+            string bkPath = path + ".bk";
+            File.Delete(bkPath);
+            File.Move(path, bkPath);
+            File.Move(tmpPath, path);
+            File.Delete(bkPath);
+        }
+
+        private IEnumerable<string> ReadFileLines(string path)
+        {
+            Encoding encoding = Encoding.GetEncoding("Shift_JIS");
+            using (StreamReader reader = new StreamReader(path, encoding))
+            {
+                while (!reader.EndOfStream)
+                {
+                    yield return reader.ReadLine();
+                }
+            }
+        }
+
         public IEnumerable<IniData> GetIniValues()
         {
             foreach (IniData item in Keys.GetIniValues())

@@ -207,5 +207,101 @@ namespace IniUtils
                 }
             }
         }
+
+        /// <summary>
+        /// 指定したファイルからキーを削除する
+        /// </summary>
+        /// <param name="path">ファイルパス</param>
+        /// <param name="commentOut">コメントアウト：true, 行削除:false</param>
+        /// <param name="deleteWithComment">行削除の際にコメント行も削除するか</param>
+        public void Delete(string path, bool commentOut = true, bool deleteWithComment = false)
+        {
+            Encoding encoding = Encoding.GetEncoding("Shift_JIS");
+            string sectionName = "";
+            bool sectionHitFlg = false;
+            string tmpPath = path + ".tmp";
+            File.Delete(tmpPath);
+            List<string> comments = new List<string>();
+            // 一時ファイルに書き込み
+            using (StreamWriter writer = new StreamWriter(tmpPath, true, encoding))
+            {
+                foreach (string line in ReadFileLines(path))
+                {
+                    // セクション行かの判定
+                    if (IniFileParser.IsSectionLine(line, ref sectionName))
+                    {
+                        // この分岐に入ったときはセクションが変わったときなのでキャッシュを全て吐き出す
+                        foreach (string item in comments)
+                        {
+                            writer.WriteLine(item);
+                        }
+                        comments.Clear();
+
+                        // 差分があるセクションか判定（このフラグはセクション行でのみ更新される）
+                        sectionHitFlg = this.Sections.ContainsKey(sectionName);
+                    }
+
+                    // 削除対象のセクション処理中
+                    if (sectionHitFlg)
+                    {
+                        // この行がコメントか、意味のない行ならキャッシュする
+                        if (IniFileParser.IsCommentLine(line) || (!IniFileParser.IsSectionLine(line) && !IniFileParser.IsKeyValueLine(line)))
+                        {
+                            // 生の文字列をキャッシュしておく
+                            comments.Add(line);
+                            continue;
+                        }
+
+                        string key = "", value = "";
+                        if (IniFileParser.IsKeyValueLine(line, ref key, ref value))
+                        {
+                            // 削除対象のキーか判定
+                            if (this.Sections[sectionName]?.Keys[key] != null)
+                            {
+                                // 削除対象のキーだった場合の処理
+                                if (!deleteWithComment || commentOut)
+                                {
+                                    // コメントごと削除しないモードならコメントはキャッシュから戻す
+                                    foreach (string item in comments)
+                                    {
+                                        writer.WriteLine(item);
+                                    }
+                                }
+
+                                if (commentOut)
+                                {
+                                    // コメントアウト
+                                    writer.WriteLine(";" + line);
+                                }
+                            }
+                            else
+                            {
+                                // 削除対象でない場合はそのまま帰す
+                                foreach (string item in comments)
+                                {
+                                    writer.WriteLine(item);
+                                }
+                                writer.WriteLine(line);
+                            }
+
+                            comments.Clear();
+                            continue;
+                        }
+                    }
+
+                    // 削除対象ではないセクションはそのまま書き込む
+                    writer.WriteLine(line);
+                }
+
+            }
+
+            // ファイルに書き込み
+            string bkPath = path + ".bk";
+            File.Delete(bkPath);
+            File.Move(path, bkPath);
+            File.Move(tmpPath, path);
+            File.Delete(bkPath);
+        }
+
     }
 }

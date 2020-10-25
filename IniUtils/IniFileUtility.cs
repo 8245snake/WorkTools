@@ -191,5 +191,36 @@ namespace IniUtils
             }
             return result;
         }
+
+
+        /// <summary>
+        /// iniの値を削除する
+        /// </summary>
+        /// <param name="iniPath"></param>
+        /// <param name="sectionName"></param>
+        /// <param name="keyNames"></param>
+        /// <param name="commentOut"></param>
+        /// <param name="deleteWithComment"></param>
+        public static void DeleteIniData(string iniPath, string sectionName, ICollection<string> keyNames = null, bool commentOut = true, bool deleteWithComment = false) {
+            string IniName = System.IO.Path.GetFileName(iniPath);
+            IniFile ini = new IniFile(IniName);
+            IniSection section = new IniSection(IniName, sectionName);
+            if (keyNames == null)
+            {
+                section.Delete(iniPath, commentOut);
+                return;
+            }
+
+            foreach (IniData item in keyNames.Select(key => new IniData(IniName, sectionName, key, "")))
+            {
+                section.Keys.Add(item);
+            }
+
+            ini.Sections.Add(section);
+
+            ini.Delete(iniPath, commentOut, deleteWithComment);
+            
+        }
+
     }
 }
