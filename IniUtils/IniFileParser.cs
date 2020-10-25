@@ -208,6 +208,11 @@ namespace IniUtils
             }
             key = line.Substring(0, indexOfEqual).Trim();
             value = line.Substring(indexOfEqual + 1).Trim();
+            // 値がダブルクオーテーションで囲われている場合は中身を返す
+            if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
+                value = value.Substring(1, value.Length - 2);
+            }
             return true;
         }
 
