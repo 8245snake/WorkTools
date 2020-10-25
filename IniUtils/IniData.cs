@@ -52,5 +52,14 @@ namespace IniUtils
             // キー＆値書き出し
             writer.WriteLine(_RawString);
         }
+
+        public static bool operator ==(IniData data1, IniData data2)
+        {
+            return (data1?.SectionName == data2?.SectionName && data1?.KeyName == data2?.KeyName);
+        }
+        public static bool operator !=(IniData data1, IniData data2)
+        {
+            return !(data1 == data2);
+        }
     }
 }

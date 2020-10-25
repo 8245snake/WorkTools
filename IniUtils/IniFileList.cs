@@ -9,7 +9,17 @@ namespace IniUtils
 {
     public class IniFileList : IDictionary<string, IniFile>, ICollection<IniFile>, IEnumerable<IniFile>
     {
-        public List<IniFile> _list = new List<IniFile>();
+        public List<IniFile> _list;
+
+        public IniFileList()
+        {
+            _list = new List<IniFile>();
+        }
+
+        public IniFileList(ICollection<IniFile> list)
+        {
+            _list = list.ToList();
+        }
 
         public IniFile this[string fileName] {
             get => _list.Where(ini => ini.FileName.ToUpper() == fileName.ToUpper()).FirstOrDefault();
@@ -44,7 +54,13 @@ namespace IniUtils
         {
             _list.Add(item);
         }
-
+        public void AddAll(ICollection<IniFile> items)
+        {
+            foreach (IniFile item in items)
+            {
+                _list.Add(item);
+            }
+        }
         public void Clear()
         {
             _list.Clear();
@@ -150,6 +166,7 @@ namespace IniUtils
             }
         }
 
+
         /// <summary>
         /// 加算
         /// </summary>
@@ -158,21 +175,9 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniFileList operator +(IniFileList augend, IniFileList addend)
         {
-            IniFileList result = augend;
-            foreach (IniFile file in addend.Values)
-            {
-                string fileName = file.FileName;
-                if (!result.ContainsKey(fileName))
-                {
-                    // ないファイルならそのまま加える
-                    result.Add(file);
-                }
-                else
-                {
-                    // あるファイルなら差分を足す
-                    result[fileName] += file;
-                }
-            }
+            IniFileList result = new IniFileList(augend);
+            // augendに存在しないaddendの要素を追加する
+            result.AddAll(addend.GetIniFiles().Where(ini => !augend.ContainsKey(ini.FileName)).ToList());
             return result;
         }
 
@@ -185,51 +190,38 @@ namespace IniUtils
         public static IniFileList operator -(IniFileList minuend, IniFileList subtrahend)
         {
             IniFileList result = new IniFileList();
-            // 引かれる方のリストで回す
-            foreach (IniFile file in minuend.Values)
-            {
-                string fileName = file.FileName;
-                if (!subtrahend.ContainsKey(fileName))
-                {
-                    // 引かれる方にだけある要素なら残す
-                    result.Add(file);
-                }
-                else
-                {
-                    // 引かれる方と引く方にある場合は差分だけ残す
-                    IniFile sub = file - subtrahend[fileName];
-                    if (sub.Sections.Count > 0)
-                    {
-                        result.Add(sub);
-                    }
-                }
-            }
+            result.AddAll(minuend / subtrahend);
+            result.AddAll(minuend % subtrahend);
             return result;
         }
 
-        public static IniFileList operator /(IniFileList minuend, IniFileList subtrahend)
+        /// <summary>
+        /// 除算
+        /// </summary>
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>除算結果</returns>
+        /// <remarks>割られる集合のみに存在する要素を返す</remarks>
+        public static IniFileList operator /(IniFileList dividend, IniFileList divisor)
         {
-            IniFileList result = new IniFileList();
-            // 引かれる方のリストで回す
-            foreach (IniFile file in minuend.Values)
-            {
-                string fileName = file.FileName;
-                if (!subtrahend.ContainsKey(fileName))
-                {
-                    // 引かれる方にだけある要素なら残す
-                    result.Add(file);
-                }
-                else
-                {
-                    // 引かれる方と引く方にある場合は差分だけ残す
-                    IniFile sub = file / subtrahend[fileName];
-                    if (sub.Sections.Count > 0)
-                    {
-                        result.Add(sub);
-                    }
-                }
-            }
-            return result;
+            // dividendにしかないキーを集めて返す
+            return new IniFileList(dividend.GetIniFiles()
+                .Where(ini => !divisor.ContainsKey(ini.FileName)).ToList());
+        }
+
+        /// <summary>
+        /// 剰余
+        /// </summary>
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>剰余結果</returns>
+        /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
+        public static IniFileList operator %(IniFileList dividend, IniFileList divisor)
+        {
+            // 両方にあるキーで、値が異なるものを集めて返す
+            return new IniFileList(dividend.GetIniFiles()
+                .Where(section => divisor.ContainsKey(section.FileName))
+                .Where(section => section != divisor[section.FileName]).ToList());
         }
     }
 }

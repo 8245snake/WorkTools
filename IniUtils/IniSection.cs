@@ -118,7 +118,9 @@ namespace IniUtils
         /// <returns>減算結果</returns>
         public static IniSection operator -(IniSection minuend, IniSection subtrahend)
         {
+            if (minuend?.SectionName == null) { return null; }
             IniSection result = new IniSection(minuend.FileName, minuend.SectionName);
+            if (subtrahend?.SectionName == null) { return result; }
             result.Keys = minuend.Keys - subtrahend.Keys;
             return result;
         }
@@ -126,14 +128,43 @@ namespace IniUtils
         /// <summary>
         /// 除算
         /// </summary>
-        /// <param name="minuend"></param>
-        /// <param name="subtrahend"></param>
-        /// <returns></returns>
-        public static IniSection operator /(IniSection minuend, IniSection subtrahend)
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>除算結果</returns>
+        /// <remarks>割られる集合のみに存在する要素を返す</remarks>
+        public static IniSection operator /(IniSection dividend, IniSection divisor)
         {
-            IniSection result = new IniSection(minuend.FileName, minuend.SectionName);
-            result.Keys = minuend.Keys / subtrahend.Keys;
+            IniSection result = new IniSection(dividend.FileName, dividend.SectionName);
+            result.Keys = dividend.Keys / divisor.Keys;
             return result;
         }
+
+        /// <summary>
+        /// 剰余
+        /// </summary>
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>剰余結果</returns>
+        /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
+        public static IniSection operator %(IniSection dividend, IniSection divisor)
+        {
+            IniSection result = new IniSection(dividend.FileName, dividend.SectionName);
+            result.Keys = dividend.Keys % divisor.Keys;
+            return result;
+        }
+
+        //public static bool operator ==(IniSection section1, IniSection section2)
+        //{
+        //    IniSection result = section1 - section2;
+        //    if (result?.Keys?.Count == null) { return false; }
+        //    return (result.Keys.Count > 0);
+        //}
+
+        //public static bool operator !=(IniSection section1, IniSection section2)
+        //{
+        //    return !(section1 == section2);
+        //}
+
+
     }
 }

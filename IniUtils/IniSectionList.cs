@@ -10,7 +10,17 @@ namespace IniUtils
 {
     public class IniSectionList : IDictionary<string, IniSection>, ICollection<IniSection>, IEnumerable<IniSection>
     {
-        private List<IniSection> _list = new List<IniSection>();
+        private List<IniSection> _list;
+
+        public IniSectionList()
+        {
+            _list = new List<IniSection>();
+        }
+
+        public IniSectionList(ICollection<IniSection> list)
+        {
+            _list = list.ToList();
+        }
 
         public IniSection this[string sectionName] {
             get => _list.Where(ini => ini.SectionName.ToUpper() == sectionName.ToUpper()).FirstOrDefault();
@@ -46,6 +56,13 @@ namespace IniUtils
         public void Add(IniSection item)
         {
             _list.Add(item);
+        }
+        public void AddAll(ICollection<IniSection> items)
+        {
+            foreach (IniSection item in items)
+            {
+                _list.Add(item);
+            }
         }
 
         public void Clear()
@@ -159,21 +176,9 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniSectionList operator +(IniSectionList augend, IniSectionList addend)
         {
-            IniSectionList result = augend;
-            foreach (IniSection section in addend.Values)
-            {
-                string sectionName = section.SectionName;
-                if (!result.ContainsKey(sectionName))
-                {
-                    // ないセクションならそのまま加える
-                    result.Add(section);
-                }
-                else
-                {
-                    // あるセクションなら差分を足す
-                    result[sectionName].Keys += section.Keys;
-                }
-            }
+            IniSectionList result = new IniSectionList(augend);
+            // augendに存在しないaddendの要素を追加する
+            result.AddAll(addend.GetIniSections().Where(ini => !augend.ContainsKey(ini.SectionName)).ToList());
             return result;
         }
 
@@ -186,57 +191,38 @@ namespace IniUtils
         public static IniSectionList operator -(IniSectionList minuend, IniSectionList subtrahend)
         {
             IniSectionList result = new IniSectionList();
-            // 引かれる方のリストで回す
-            foreach (IniSection section in minuend.Values)
-            {
-                string sectionName = section.SectionName;
-                if (!subtrahend.ContainsKey(sectionName))
-                {
-                    // 引かれる方にだけある要素なら残す
-                    result.Add(section);
-                }
-                else
-                {
-                    // 引かれる方と引く方にある場合は差分だけ残す
-                    IniSection sub = section - subtrahend[sectionName];
-                    if (sub.Keys.Count > 0)
-                    {
-                        result.Add(sub);
-                    }
-                }
-            }
+            result.AddAll(minuend / subtrahend);
+            result.AddAll(minuend % subtrahend);
             return result;
         }
 
         /// <summary>
-        /// 第一引数の方にしかないセクションを返す
+        /// 除算
         /// </summary>
-        /// <param name="minuend"></param>
-        /// <param name="subtrahend"></param>
-        /// <returns></returns>
-        public static IniSectionList operator /(IniSectionList minuend, IniSectionList subtrahend)
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>除算結果</returns>
+        /// <remarks>割られる集合のみに存在する要素を返す</remarks>
+        public static IniSectionList operator /(IniSectionList dividend, IniSectionList divisor)
         {
-            IniSectionList result = new IniSectionList();
-            // 引かれる方のリストで回す
-            foreach (IniSection section in minuend.Values)
-            {
-                string sectionName = section.SectionName;
-                if (!subtrahend.ContainsKey(sectionName))
-                {
-                    // 引かれる方にだけある要素なら残す
-                    result.Add(section);
-                }
-                else
-                {
-                    // 引かれる方と引く方にある場合は差分だけ残す
-                    IniSection sub = section / subtrahend[sectionName];
-                    if (sub.Keys.Count > 0)
-                    {
-                        result.Add(sub);
-                    }
-                }
-            }
-            return result;
+            // dividendにしかないキーを集めて返す
+            return new IniSectionList(dividend.GetIniSections()
+                .Where(ini => !divisor.ContainsKey(ini.SectionName)).ToList());
+        }
+
+        /// <summary>
+        /// 剰余
+        /// </summary>
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>剰余結果</returns>
+        /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
+        public static IniSectionList operator %(IniSectionList dividend, IniSectionList divisor)
+        {
+            // 両方にあるキーで、値が異なるものを集めて返す
+            return new IniSectionList(dividend.GetIniSections()
+                .Where(section => divisor.ContainsKey(section.SectionName))
+                .Where(section => section != divisor[section.SectionName]).ToList());
         }
     }
 }

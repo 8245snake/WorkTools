@@ -10,7 +10,17 @@ namespace IniUtils
 {
     public class IniDataList : IDictionary<string, IniData>, ICollection<IniData>, IEnumerable<IniData>
     {
-        public List<IniData> _list = new List<IniData>();
+        public List<IniData> _list;
+
+        public IniDataList()
+        {
+            _list = new List<IniData>();
+        }
+
+        public IniDataList(ICollection<IniData> list)
+        {
+            _list = list.ToList();
+        }
 
         public IniData this[string key] {
             get => _list.Where(ini => ini.KeyName.ToUpper() == key.ToUpper()).FirstOrDefault();
@@ -45,6 +55,14 @@ namespace IniUtils
         public void Add(IniData item)
         {
             _list.Add(item);
+        }
+
+        public void AddAll(ICollection<IniData> items)
+        {
+            foreach (IniData item in items)
+            {
+                _list.Add(item);
+            }
         }
 
         public void Clear()
@@ -156,15 +174,9 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniDataList operator +(IniDataList augend, IniDataList addend)
         {
-            IniDataList result = augend;
-            foreach (IniData ini in addend.Values)
-            {
-                // 同じキーがあったらaugendを優先
-                if (! result.ContainsKey(ini.KeyName))
-                {
-                    result.Add(ini);
-                }
-            }
+            IniDataList result = new IniDataList(augend);
+            // augendに存在しないaddendの要素を追加する
+            result.AddAll(addend.GetIniValues().Where(ini => !augend.ContainsKey(ini.KeyName)).ToList());
             return result;
         }
 
@@ -177,42 +189,39 @@ namespace IniUtils
         public static IniDataList operator -(IniDataList minuend, IniDataList subtrahend)
         {
             IniDataList result = new IniDataList();
-            // 引かれる方のリストで回す
-            foreach (IniData ini in minuend.Values)
-            {
-                string keyName = ini.KeyName;
-                if (!subtrahend.ContainsKey(keyName))
-                {
-                    // 引かれる方にだけある要素なら残す
-                    result.Add(ini);
-                }
-                else
-                {
-                    if (ini.Value != subtrahend[keyName].Value)
-                    {
-                        // 引かれる方と引く方にあるが値が違う場合、引かれる方を採用する
-                        result.Add(ini);
-                    }
-                }
-            }
+            result.AddAll(minuend / subtrahend);
+            result.AddAll(minuend % subtrahend);
             return result;
         }
 
-
-        public static IniDataList operator /(IniDataList minuend, IniDataList subtrahend)
+        /// <summary>
+        /// 除算
+        /// </summary>
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>除算結果</returns>
+        /// <remarks>割られる集合のみに存在する要素を返す</remarks>
+        public static IniDataList operator /(IniDataList dividend, IniDataList divisor)
         {
-            IniDataList result = new IniDataList();
-            // 引かれる方のリストで回す
-            foreach (IniData ini in minuend.Values)
-            {
-                string keyName = ini.KeyName;
-                if (!subtrahend.ContainsKey(keyName))
-                {
-                    // 引かれる方にだけある要素なら残す
-                    result.Add(ini);
-                }
-            }
-            return result;
+            // dividendにしかないキーを集めて返す
+            return new IniDataList(dividend.GetIniValues()
+                .Where(ini => !divisor.ContainsKey(ini.KeyName)).ToList());
+        }
+
+
+        /// <summary>
+        /// 剰余
+        /// </summary>
+        /// <param name="dividend">割られる集合</param>
+        /// <param name="divisor">割る集合</param>
+        /// <returns>剰余結果</returns>
+        /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
+        public static IniDataList operator %(IniDataList dividend, IniDataList divisor)
+        {
+            // 両方にあるキーで、値が異なるものを集めて返す
+            return new IniDataList(dividend.GetIniValues()
+                .Where(ini => divisor.ContainsKey(ini.KeyName))
+                .Where(ini => ini != divisor[ini.KeyName]).ToList());
         }
     }
 }
