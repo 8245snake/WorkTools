@@ -37,6 +37,10 @@
     <ApplicationIcon>Resources\specificker.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CustomControls, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Resources\CustomControls.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -93,6 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\specificker.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\CustomControls.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

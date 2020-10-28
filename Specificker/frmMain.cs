@@ -11,6 +11,7 @@ using System.IO;
 using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
+using CustomControls;
 
 namespace Specificker
 {
@@ -151,92 +152,20 @@ namespace Specificker
             return false;
         }
 
-        private void btnRef1_Click(object sender, EventArgs e)
-        {
-            string input = "";
-            if (opbDirectory.Checked)
-            {
-                input = getFolderFromDialog();
-            }
-            else
-            {
-                input = getFilePathFromDialog();
-            }
-            if (input != "")
-            {
-                txtInput1.Text = input;
-            }
-            btnExec.Enabled = isTextValidatedOK();
-        }
-
-        private void btnRef2_Click(object sender, EventArgs e)
-        {
-            string input = "";
-            if (opbDirectory.Checked)
-            {
-                input = getFolderFromDialog();
-            }
-            else
-            {
-                input = getFilePathFromDialog();
-            }
-            if (input != "")
-            {
-                txtInput2.Text = input;
-            }
-            btnExec.Enabled = isTextValidatedOK();
-        }
-
-        private void btnOutputRef_Click(object sender, EventArgs e)
-        {
-            string output = getFolderFromDialog();
-            if (output == "")
-            {
-                return;
-            }
-            txtOutput.Text = output;
-            btnExec.Enabled = isTextValidatedOK();
-        }
-
-        private string getFilePathFromDialog()
-        {
-            string filename = "";
-            using (OpenFileDialog dialog = new OpenFileDialog())
-            {
-                dialog.InitialDirectory = @"C:\";
-                dialog.Filter = "iniファイル(*.ini)|*.ini|すべてのファイル(*.*)|*.*";
-                dialog.FilterIndex = 1;
-                dialog.Title = "開くファイルを選択してください";
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    filename = dialog.FileName;
-                }
-            }
-            return filename;
-        }
-
-        private string getFolderFromDialog()
-        {
-            string selectedPath = "";
-            using (FolderBrowserDialog fbDialog = new FolderBrowserDialog())
-            {
-                fbDialog.Description = "開くフォルダを選択してください";
-                fbDialog.SelectedPath = @"C:";
-                // 「新しいフォルダーの作成する」ボタンを表示する
-                fbDialog.ShowNewFolderButton = true;
-                if (fbDialog.ShowDialog() == DialogResult.OK)
-                {
-                    selectedPath = fbDialog.SelectedPath;
-                }
-            }
-            return selectedPath;
-        }
-
         private void optionButton_CheckedChanged(object sender, EventArgs e)
         {
             txtInput1.Text = "";
             txtInput2.Text = "";
+
+            IODialogButton.PathType pathType = IODialogButton.PathType.FileInput;
+            if (opbDirectory.Checked)
+            {
+                pathType = IODialogButton.PathType.FolderInput;
+            }
+            btnRef1.BindTextBox(txtInput1, pathType);
+            btnRef2.BindTextBox(txtInput2, pathType);
+            btnOutputRef.BindTextBox(txtOutput, pathType);
+
         }
 
         private bool isTextValidatedOK()
@@ -351,7 +280,9 @@ namespace Specificker
         {
             FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             this.Text = string.Format("Specificker (ver. {0})", ver.FileVersion);
-
+            btnRef1.BindTextBox(txtInput1, IODialogButton.PathType.FolderInput);
+            btnRef2.BindTextBox(txtInput2, IODialogButton.PathType.FolderInput);
+            btnOutputRef.BindTextBox(txtOutput, IODialogButton.PathType.FolderInput);
         }
     }
 }

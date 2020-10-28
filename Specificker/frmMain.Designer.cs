@@ -34,8 +34,8 @@
             this.opbFile = new System.Windows.Forms.RadioButton();
             this.bgworkerMain = new System.ComponentModel.BackgroundWorker();
             this.txtInput1 = new System.Windows.Forms.TextBox();
-            this.btnRef1 = new System.Windows.Forms.Button();
-            this.btnRef2 = new System.Windows.Forms.Button();
+            this.btnRef1 = new CustomControls.IODialogButton();
+            this.btnRef2 = new CustomControls.IODialogButton();
             this.txtInput2 = new System.Windows.Forms.TextBox();
             this.btnExec = new System.Windows.Forms.Button();
             this.pgbMain = new System.Windows.Forms.ProgressBar();
@@ -43,7 +43,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnOutputRef = new System.Windows.Forms.Button();
+            this.btnOutputRef = new CustomControls.IODialogButton();
             this.txtOutput = new System.Windows.Forms.TextBox();
             this.btnSwitch = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -128,7 +128,6 @@
             this.btnRef1.TabIndex = 2;
             this.btnRef1.Text = "参照";
             this.btnRef1.UseVisualStyleBackColor = true;
-            this.btnRef1.Click += new System.EventHandler(this.btnRef1_Click);
             // 
             // btnRef2
             // 
@@ -141,7 +140,6 @@
             this.btnRef2.TabIndex = 4;
             this.btnRef2.Text = "参照";
             this.btnRef2.UseVisualStyleBackColor = true;
-            this.btnRef2.Click += new System.EventHandler(this.btnRef2_Click);
             // 
             // txtInput2
             // 
@@ -233,7 +231,6 @@
             this.btnOutputRef.TabIndex = 13;
             this.btnOutputRef.Text = "参照";
             this.btnOutputRef.UseVisualStyleBackColor = true;
-            this.btnOutputRef.Click += new System.EventHandler(this.btnOutputRef_Click);
             // 
             // txtOutput
             // 
@@ -350,8 +347,8 @@
         private System.Windows.Forms.RadioButton opbFile;
         private System.ComponentModel.BackgroundWorker bgworkerMain;
         private System.Windows.Forms.TextBox txtInput1;
-        private System.Windows.Forms.Button btnRef1;
-        private System.Windows.Forms.Button btnRef2;
+        private CustomControls.IODialogButton btnRef1;
+        private CustomControls.IODialogButton btnRef2;
         private System.Windows.Forms.TextBox txtInput2;
         private System.Windows.Forms.Button btnExec;
         private System.Windows.Forms.ProgressBar pgbMain;
@@ -359,7 +356,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button btnOutputRef;
+        private CustomControls.IODialogButton btnOutputRef;
         private System.Windows.Forms.TextBox txtOutput;
         private System.Windows.Forms.Button btnSwitch;
         private System.Windows.Forms.GroupBox groupBox2;
