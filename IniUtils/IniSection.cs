@@ -105,8 +105,9 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniSection operator +(IniSection augend, IniSection addend)
         {
+            if (augend?.SectionName == null) { return null; }
             IniSection result = new IniSection(augend.FileName, augend.SectionName);
-            result.Keys = augend.Keys + addend.Keys;
+            result.Keys = augend?.Keys + addend?.Keys;
             return result;
         }
 
@@ -120,8 +121,7 @@ namespace IniUtils
         {
             if (minuend?.SectionName == null) { return null; }
             IniSection result = new IniSection(minuend.FileName, minuend.SectionName);
-            if (subtrahend?.SectionName == null) { return result; }
-            result.Keys = minuend.Keys - subtrahend.Keys;
+            result.Keys = minuend?.Keys - subtrahend?.Keys;
             return result;
         }
 
@@ -134,8 +134,9 @@ namespace IniUtils
         /// <remarks>割られる集合のみに存在する要素を返す</remarks>
         public static IniSection operator /(IniSection dividend, IniSection divisor)
         {
+            if (dividend?.SectionName == null) { return null; }
             IniSection result = new IniSection(dividend.FileName, dividend.SectionName);
-            result.Keys = dividend.Keys / divisor.Keys;
+            result.Keys = dividend?.Keys / divisor?.Keys;
             return result;
         }
 
@@ -148,23 +149,24 @@ namespace IniUtils
         /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
         public static IniSection operator %(IniSection dividend, IniSection divisor)
         {
+            if (dividend?.SectionName == null) { return null; }
             IniSection result = new IniSection(dividend.FileName, dividend.SectionName);
-            result.Keys = dividend.Keys % divisor.Keys;
+            result.Keys = dividend?.Keys % divisor?.Keys;
             return result;
         }
 
-        //public static bool operator ==(IniSection section1, IniSection section2)
-        //{
-        //    IniSection result = section1 - section2;
-        //    if (result?.Keys?.Count == null) { return false; }
-        //    return (result.Keys.Count > 0);
-        //}
-
-        //public static bool operator !=(IniSection section1, IniSection section2)
-        //{
-        //    return !(section1 == section2);
-        //}
-
+        public bool IsSameAllContents(IniSection section)
+        {
+            if (section == null) { return false; }
+            foreach (IniData data in section.GetIniValues())
+            {
+                if (!(bool)Keys[data.KeyName]?.IsSameKeyValue(data))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
     }
 }

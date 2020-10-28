@@ -176,9 +176,14 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniSectionList operator +(IniSectionList augend, IniSectionList addend)
         {
-            IniSectionList result = new IniSectionList(augend);
-            // augendに存在しないaddendの要素を追加する
-            result.AddAll(addend.GetIniSections().Where(ini => !augend.ContainsKey(ini.SectionName)).ToList());
+            if (augend == null) { return new IniSectionList(); }
+            if (addend == null) { return new IniSectionList(augend); }
+            IniSectionList result = new IniSectionList();
+            // セクションの合体
+            result.AddAll(augend.GetIniSections()
+                .Select(section => section + addend[section.SectionName]).ToList());
+            // addendにしかないセクションを追加する
+            result.AddAll(addend / augend);
             return result;
         }
 
@@ -190,6 +195,7 @@ namespace IniUtils
         /// <returns>減算結果</returns>
         public static IniSectionList operator -(IniSectionList minuend, IniSectionList subtrahend)
         {
+            if(subtrahend == null) { return new IniSectionList(minuend); }
             IniSectionList result = new IniSectionList();
             result.AddAll(minuend / subtrahend);
             result.AddAll(minuend % subtrahend);
@@ -205,9 +211,11 @@ namespace IniUtils
         /// <remarks>割られる集合のみに存在する要素を返す</remarks>
         public static IniSectionList operator /(IniSectionList dividend, IniSectionList divisor)
         {
+            if (divisor == null) { return new IniSectionList(dividend); }
             // dividendにしかないキーを集めて返す
             return new IniSectionList(dividend.GetIniSections()
-                .Where(ini => !divisor.ContainsKey(ini.SectionName)).ToList());
+                .Select(section => section / divisor[section.SectionName])
+                .Where(sections => sections?.Keys?.Count > 0).ToList());
         }
 
         /// <summary>
@@ -219,10 +227,11 @@ namespace IniUtils
         /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
         public static IniSectionList operator %(IniSectionList dividend, IniSectionList divisor)
         {
-            // 両方にあるキーで、値が異なるものを集めて返す
+            if (divisor == null) { return new IniSectionList(dividend); }
+            // 両方にあるセクションで、中身が異なるものを集めて返す
             return new IniSectionList(dividend.GetIniSections()
-                .Where(section => divisor.ContainsKey(section.SectionName))
-                .Where(section => section != divisor[section.SectionName]).ToList());
+                .Select(section => section % divisor[section.SectionName])
+                .Where(sections => sections?.Keys?.Count > 0).ToList());
         }
     }
 }

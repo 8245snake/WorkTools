@@ -38,6 +38,7 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniFile operator +(IniFile augend, IniFile addend)
         {
+            if (augend?.FileName == null) { return null; }
             IniFile result = new IniFile(augend.FileName);
             result.Sections = augend.Sections + addend.Sections;
             return result;
@@ -51,6 +52,7 @@ namespace IniUtils
         /// <returns>減算結果</returns>
         public static IniFile operator -(IniFile minuend, IniFile subtrahend)
         {
+            if (minuend?.FileName == null) { return null; }
             IniFile result = new IniFile(minuend.FileName);
             result.Sections = minuend.Sections - subtrahend.Sections;
             return result;
@@ -65,6 +67,7 @@ namespace IniUtils
         /// <remarks>割られる集合のみに存在する要素を返す</remarks>
         public static IniFile operator /(IniFile dividend, IniFile divisor)
         {
+            if (dividend?.FileName == null) { return null; }
             IniFile result = new IniFile(dividend.FileName);
             result.Sections = dividend.Sections / divisor.Sections;
             return result;
@@ -79,20 +82,10 @@ namespace IniUtils
         /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
         public static IniFile operator %(IniFile dividend, IniFile divisor)
         {
+            if (dividend?.FileName == null) { return null; }
             IniFile result = new IniFile(dividend.FileName);
             result.Sections = dividend.Sections % divisor.Sections;
             return result;
-        }
-
-        public static bool operator ==(IniFile ini1, IniFile ini2)
-        {
-            IniFile list = ini1 - ini2;
-            return (list.Sections.Count > 0);
-        }
-
-        public static bool operator !=(IniFile ini1, IniFile ini2)
-        {
-            return !(ini1 == ini2);
         }
 
         public void OutputIniFile(string path, bool outputComment)

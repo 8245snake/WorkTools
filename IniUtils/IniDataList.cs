@@ -174,6 +174,8 @@ namespace IniUtils
         /// <returns>加算結果</returns>
         public static IniDataList operator +(IniDataList augend, IniDataList addend)
         {
+            if (augend == null) { return new IniDataList(); }
+            if (addend == null) { return new IniDataList(augend); }
             IniDataList result = new IniDataList(augend);
             // augendに存在しないaddendの要素を追加する
             result.AddAll(addend.GetIniValues().Where(ini => !augend.ContainsKey(ini.KeyName)).ToList());
@@ -188,6 +190,8 @@ namespace IniUtils
         /// <returns>減算結果</returns>
         public static IniDataList operator -(IniDataList minuend, IniDataList subtrahend)
         {
+            if (minuend == null) { return new IniDataList(); }
+            if (subtrahend == null) { return new IniDataList(minuend); }
             IniDataList result = new IniDataList();
             result.AddAll(minuend / subtrahend);
             result.AddAll(minuend % subtrahend);
@@ -203,6 +207,8 @@ namespace IniUtils
         /// <remarks>割られる集合のみに存在する要素を返す</remarks>
         public static IniDataList operator /(IniDataList dividend, IniDataList divisor)
         {
+            if (dividend == null) { return new IniDataList(); }
+            if (divisor == null) { return new IniDataList(dividend); }
             // dividendにしかないキーを集めて返す
             return new IniDataList(dividend.GetIniValues()
                 .Where(ini => !divisor.ContainsKey(ini.KeyName)).ToList());
@@ -218,10 +224,11 @@ namespace IniUtils
         /// <remarks>両方に存在して値が異なる要素のみ返す（dividendの値を採用する）</remarks>
         public static IniDataList operator %(IniDataList dividend, IniDataList divisor)
         {
+            if (dividend == null || divisor == null) { return new IniDataList(); }
             // 両方にあるキーで、値が異なるものを集めて返す
             return new IniDataList(dividend.GetIniValues()
                 .Where(ini => divisor.ContainsKey(ini.KeyName))
-                .Where(ini => ini != divisor[ini.KeyName]).ToList());
+                .Where(ini => !ini.IsSameKeyValue(divisor[ini.KeyName])).ToList());
         }
     }
 }

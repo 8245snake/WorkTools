@@ -53,13 +53,10 @@ namespace IniUtils
             writer.WriteLine(_RawString);
         }
 
-        public static bool operator ==(IniData data1, IniData data2)
+        public bool IsSameKeyValue(IniData data)
         {
-            return (data1?.SectionName == data2?.SectionName && data1?.KeyName == data2?.KeyName);
-        }
-        public static bool operator !=(IniData data1, IniData data2)
-        {
-            return !(data1 == data2);
+            if (data == null) { return false; }
+            return (data.KeyName == this.KeyName && data.Value == this.Value);
         }
     }
 }
