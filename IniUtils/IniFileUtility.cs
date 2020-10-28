@@ -1,5 +1,4 @@
-﻿using Microsoft.SqlServer.Server;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -64,6 +63,7 @@ namespace IniUtils
         /// <summary>
         /// プロパティの属性で指定したiniを読んで結果を返す
         /// </summary>
+        /// <param name="type">型名</param>
         /// <param name="propertyName">プロパティ名</param>
         /// <returns>設定値</returns>
         public static object ReadToProperty(Type type, string propertyName)
@@ -102,8 +102,28 @@ namespace IniUtils
         }
 
         /// <summary>
+        /// プロパティの属性で指定した設定のデフォルト値を返す
+        /// </summary>
+        /// <param name="type">型名</param>
+        /// <param name="propertyName">プロパティ名</param>
+        /// <returns>設定値</returns>
+        public static object GetDefaultValue(Type type, string propertyName)
+        {
+            foreach (PropertyInfo propertyInfo in type.GetProperties())
+            {
+                if (propertyInfo.Name != propertyName) { continue; }
+
+                IniDataAttribute attribute = Attribute.GetCustomAttribute(propertyInfo, typeof(IniDataAttribute)) as IniDataAttribute;
+                if (attribute == null) { continue; }
+                return attribute.DefaultValue;
+            }
+            return default;
+        }
+
+        /// <summary>
         /// プロパティの属性で指定したiniに書き込む
         /// </summary>
+        /// <param name="type">型名</param>
         /// <param name="propertyName">プロパティ名</param>
         /// <returns>設定値</returns>
         public static void WriteToProperty(Type type, string propertyName, object value)
