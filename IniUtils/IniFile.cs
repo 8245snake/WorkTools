@@ -88,6 +88,22 @@ namespace IniUtils
             return result;
         }
 
+        /// <summary>
+        /// 積算
+        /// </summary>
+        /// <param name="multiplicand">被乗数</param>
+        /// <param name="multiplier">乗数</param>
+        /// <returns>積算結果</returns>
+        /// <remarks>両方に存在して値が等しい要素のみ返す</remarks>
+        public static IniFile operator *(IniFile multiplicand, IniFile multiplier)
+        {
+            if (multiplicand?.FileName == null) { return null; }
+            IniFile result = new IniFile(multiplicand.FileName);
+            result.Sections = multiplicand.Sections * multiplier.Sections;
+            return result;
+        }
+
+
         public void OutputIniFile(string path, bool outputComment)
         {
             if (File.Exists(path))

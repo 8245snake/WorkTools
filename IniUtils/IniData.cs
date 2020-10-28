@@ -20,7 +20,14 @@ namespace IniUtils
         public string KeyName { get => _KeyName; }
         public string Value  { get => _Value; }
         public string Comment { get => _Comment; }
-        public string RawString { get => _RawString; }
+        public string KeyValue
+        {
+            get
+            {
+                if (_RawString != "") { return _RawString; }
+                return _KeyName + "=" + _Value;
+            }
+        }
 
         public IniData(string file, string section , string key , string value, string comment = "", string rawString = "")
         {
@@ -50,13 +57,14 @@ namespace IniUtils
                 }
             }
             // キー＆値書き出し
-            writer.WriteLine(_RawString);
+            writer.WriteLine(KeyValue);
         }
 
         public bool IsSameKeyValue(IniData data)
         {
             if (data == null) { return false; }
-            return (data.KeyName == this.KeyName && data.Value == this.Value);
+            return (data.KeyName.ToUpper() == this.KeyName.ToUpper() 
+                && data.Value.ToUpper() == this.Value.ToUpper());
         }
     }
 }

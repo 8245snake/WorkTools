@@ -229,8 +229,26 @@ namespace IniUtils
             if (divisor == null) { return new IniFileList(); }
             // 両方にあるキーで、値が異なるものを集めて返す
             return new IniFileList(dividend.GetIniFiles()
-                .Select(file => file / divisor[file.FileName])
+                .Select(file => file % divisor[file.FileName])
                 .Where(files => files.Sections?.Count > 0).ToList());
         }
+
+        /// <summary>
+        /// 積算
+        /// </summary>
+        /// <param name="multiplicand">被乗数</param>
+        /// <param name="multiplier">乗数</param>
+        /// <returns>積算結果</returns>
+        /// <remarks>両方に存在して値が等しい要素のみ返す</remarks>
+        public static IniFileList operator *(IniFileList multiplicand, IniFileList multiplier)
+        {
+            if (multiplier == null) { return new IniFileList(); }
+            // 両方にあるキーで、値が異なるものを集めて返す
+            return new IniFileList(multiplicand.GetIniFiles()
+                .Select(file => file * multiplier[file.FileName])
+                .Where(files => files.Sections?.Count > 0).ToList());
+        }
+
+
     }
 }

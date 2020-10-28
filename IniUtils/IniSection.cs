@@ -155,18 +155,19 @@ namespace IniUtils
             return result;
         }
 
-        public bool IsSameAllContents(IniSection section)
+        /// <summary>
+        /// 積算
+        /// </summary>
+        /// <param name="multiplicand">被乗数</param>
+        /// <param name="multiplier">乗数</param>
+        /// <returns>積算結果</returns>
+        /// <remarks>両方に存在して値が等しい要素のみ返す</remarks>
+        public static IniSection operator *(IniSection multiplicand, IniSection multiplier)
         {
-            if (section == null) { return false; }
-            foreach (IniData data in section.GetIniValues())
-            {
-                if (!(bool)Keys[data.KeyName]?.IsSameKeyValue(data))
-                {
-                    return false;
-                }
-            }
-            return true;
+            if (multiplicand?.SectionName == null) { return null; }
+            IniSection result = new IniSection(multiplicand.FileName, multiplicand.SectionName);
+            result.Keys = multiplicand?.Keys * multiplier?.Keys;
+            return result;
         }
-
     }
 }

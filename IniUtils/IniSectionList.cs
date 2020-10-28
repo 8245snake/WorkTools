@@ -233,5 +233,21 @@ namespace IniUtils
                 .Select(section => section % divisor[section.SectionName])
                 .Where(sections => sections?.Keys?.Count > 0).ToList());
         }
+
+        /// <summary>
+        /// 積算
+        /// </summary>
+        /// <param name="multiplicand">被乗数</param>
+        /// <param name="multiplier">乗数</param>
+        /// <returns>積算結果</returns>
+        /// <remarks>両方に存在して値が等しい要素のみ返す</remarks>
+        public static IniSectionList operator *(IniSectionList multiplicand, IniSectionList multiplier)
+        {
+            if (multiplicand == null) { return new IniSectionList(); }
+            // 両方にあるセクションで、中身が等しいものを集めて返す
+            return new IniSectionList(multiplicand.GetIniSections()
+                .Select(section => section * multiplier[section.SectionName])
+                .Where(sections => sections?.Keys?.Count > 0).ToList());
+        }
     }
 }

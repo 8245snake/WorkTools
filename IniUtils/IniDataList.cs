@@ -230,5 +230,22 @@ namespace IniUtils
                 .Where(ini => divisor.ContainsKey(ini.KeyName))
                 .Where(ini => !ini.IsSameKeyValue(divisor[ini.KeyName])).ToList());
         }
+
+
+        /// <summary>
+        /// 積算
+        /// </summary>
+        /// <param name="multiplicand">被乗数</param>
+        /// <param name="multiplier">乗数</param>
+        /// <returns>積算結果</returns>
+        /// <remarks>両方に存在して値が等しい要素のみ返す</remarks>
+        public static IniDataList operator *(IniDataList multiplicand, IniDataList multiplier)
+        {
+            if (multiplicand == null || multiplier == null) { return new IniDataList(); }
+            // 両方にあるキーで、値が等しいものを集めて返す
+            return new IniDataList(multiplicand.GetIniValues()
+                .Where(ini => multiplier.ContainsKey(ini.KeyName))
+                .Where(ini => ini.IsSameKeyValue(multiplier[ini.KeyName])).ToList());
+        }
     }
 }
