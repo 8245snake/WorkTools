@@ -6,7 +6,7 @@ using System.Text;
 
 namespace IniUtils
 {
-    public class IniData
+    public class IniData : ICloneable
     {
         private string _FileName = "";
         private string _SectionName = "";
@@ -65,6 +65,11 @@ namespace IniUtils
             if (data == null) { return false; }
             return (data.KeyName.ToUpper() == this.KeyName.ToUpper() 
                 && data.Value.ToUpper() == this.Value.ToUpper());
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }

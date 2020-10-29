@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniFileList : IDictionary<string, IniFile>, ICollection<IniFile>, IEnumerable<IniFile>
+    public class IniFileList : IDictionary<string, IniFile>, ICollection<IniFile>, IEnumerable<IniFile>, ICloneable
     {
         public List<IniFile> _list;
 
@@ -249,6 +249,10 @@ namespace IniUtils
                 .Where(files => files.Sections?.Count > 0).ToList());
         }
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
 
     }
 }

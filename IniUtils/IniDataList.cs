@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniDataList : IDictionary<string, IniData>, ICollection<IniData>, IEnumerable<IniData>
+    public class IniDataList : IDictionary<string, IniData>, ICollection<IniData>, IEnumerable<IniData>,ICloneable
     {
         public List<IniData> _list;
 
@@ -141,6 +141,11 @@ namespace IniUtils
             return _list.GetEnumerator();
         }
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         public IEnumerable<IniData> GetIniValues()
         {
             foreach (IniData ini in _list)
@@ -178,7 +183,10 @@ namespace IniUtils
             if (addend == null) { return new IniDataList(augend); }
             IniDataList result = new IniDataList(augend);
             // augendに存在しないaddendの要素を追加する
-            result.AddAll(addend.GetIniValues().Where(ini => !augend.ContainsKey(ini.KeyName)).ToList());
+            result.AddAll(addend.GetIniValues()
+                .Where(ini => !augend.ContainsKey(ini.KeyName))
+                .Select(ini => (IniData)ini.Clone())
+                .ToList());
             return result;
         }
 
@@ -211,7 +219,9 @@ namespace IniUtils
             if (divisor == null) { return new IniDataList(dividend); }
             // dividendにしかないキーを集めて返す
             return new IniDataList(dividend.GetIniValues()
-                .Where(ini => !divisor.ContainsKey(ini.KeyName)).ToList());
+                .Where(ini => !divisor.ContainsKey(ini.KeyName))
+                .Select(ini => (IniData)ini.Clone())
+                .ToList());
         }
 
 
@@ -228,7 +238,9 @@ namespace IniUtils
             // 両方にあるキーで、値が異なるものを集めて返す
             return new IniDataList(dividend.GetIniValues()
                 .Where(ini => divisor.ContainsKey(ini.KeyName))
-                .Where(ini => !ini.IsSameKeyValue(divisor[ini.KeyName])).ToList());
+                .Where(ini => !ini.IsSameKeyValue(divisor[ini.KeyName]))
+                .Select(ini => (IniData)ini.Clone())
+                .ToList());
         }
 
 
@@ -245,7 +257,9 @@ namespace IniUtils
             // 両方にあるキーで、値が等しいものを集めて返す
             return new IniDataList(multiplicand.GetIniValues()
                 .Where(ini => multiplier.ContainsKey(ini.KeyName))
-                .Where(ini => ini.IsSameKeyValue(multiplier[ini.KeyName])).ToList());
+                .Where(ini => ini.IsSameKeyValue(multiplier[ini.KeyName]))
+                .Select(ini => (IniData)ini.Clone())
+                .ToList());
         }
     }
 }

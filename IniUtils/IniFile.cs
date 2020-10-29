@@ -7,7 +7,7 @@ using System.Text;
 
 namespace IniUtils
 {
-    public class IniFile
+    public class IniFile : ICloneable
     {
         public string FileName = "";
         public IniSectionList Sections = new IniSectionList();
@@ -101,6 +101,11 @@ namespace IniUtils
             IniFile result = new IniFile(multiplicand.FileName);
             result.Sections = multiplicand.Sections * multiplier.Sections;
             return result;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
 

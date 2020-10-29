@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniSectionList : IDictionary<string, IniSection>, ICollection<IniSection>, IEnumerable<IniSection>
+    public class IniSectionList : IDictionary<string, IniSection>, ICollection<IniSection>, IEnumerable<IniSection>, ICloneable
     {
         private List<IniSection> _list;
 
@@ -248,6 +248,11 @@ namespace IniUtils
             return new IniSectionList(multiplicand.GetIniSections()
                 .Select(section => section * multiplier[section.SectionName])
                 .Where(sections => sections?.Keys?.Count > 0).ToList());
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }

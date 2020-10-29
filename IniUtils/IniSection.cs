@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IniUtils
 {
-    public class IniSection
+    public class IniSection : ICloneable
     {
         public string FileName = "";
         public string SectionName = "";
@@ -168,6 +168,11 @@ namespace IniUtils
             IniSection result = new IniSection(multiplicand.FileName, multiplicand.SectionName);
             result.Keys = multiplicand?.Keys * multiplier?.Keys;
             return result;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }
