@@ -16,9 +16,8 @@ namespace TestConsole
         static void Main(string[] args)
         {
             IniFile ini1 = IniFileParser.ParseIniFile(iniPath1);
-            ini1.MergeIniFile(iniPath2, true);
-
-
+            IniFile ini2 = IniFileParser.ParseIniFile(iniPath2);
+            (ini1 - ini2).OutputIniFile(iniPath2, true);
             //Console.WriteLine("終了");
             //Console.ReadKey();
         }
