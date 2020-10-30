@@ -54,7 +54,7 @@ namespace IniUtils
         {
             if (minuend?.FileName == null) { return null; }
             IniFile result = new IniFile(minuend.FileName);
-            result.Sections = minuend.Sections - subtrahend.Sections;
+            result.Sections = minuend.Sections - subtrahend?.Sections;
             return result;
         }
 
@@ -69,7 +69,7 @@ namespace IniUtils
         {
             if (dividend?.FileName == null) { return null; }
             IniFile result = new IniFile(dividend.FileName);
-            result.Sections = dividend.Sections / divisor.Sections;
+            result.Sections = dividend.Sections / divisor?.Sections;
             return result;
         }
 
@@ -84,7 +84,7 @@ namespace IniUtils
         {
             if (dividend?.FileName == null) { return null; }
             IniFile result = new IniFile(dividend.FileName);
-            result.Sections = dividend.Sections % divisor.Sections;
+            result.Sections = dividend.Sections % divisor?.Sections;
             return result;
         }
 
@@ -99,7 +99,7 @@ namespace IniUtils
         {
             if (multiplicand?.FileName == null) { return null; }
             IniFile result = new IniFile(multiplicand.FileName);
-            result.Sections = multiplicand.Sections * multiplier.Sections;
+            result.Sections = multiplicand.Sections * multiplier?.Sections;
             return result;
         }
 
