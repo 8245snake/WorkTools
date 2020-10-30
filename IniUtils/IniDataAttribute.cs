@@ -29,6 +29,10 @@ namespace IniUtils
             /// </summary>
             StringArrayData,
             /// <summary>
+            /// 連番キー設定（リストにパースする）
+            /// </summary>
+            StringListData,
+            /// <summary>
             /// 整数値型
             /// </summary>
             IntegerData,

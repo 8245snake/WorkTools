@@ -15,9 +15,8 @@ namespace TestConsole
 
         static void Main(string[] args)
         {
-            IniFile ini1 = IniFileParser.ParseIniFile(iniPath1);
-            IniFile ini2 = IniFileParser.ParseIniFile(iniPath2);
-            (ini1 - ini2).OutputIniFile(iniPath2, true);
+            Environment.CurrentDirectory = @"C:\Users\USER\Documents";
+            ConfigData conf = new ConfigData();
             //Console.WriteLine("終了");
             //Console.ReadKey();
         }

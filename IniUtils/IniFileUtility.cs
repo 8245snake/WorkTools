@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -33,6 +34,9 @@ namespace IniUtils
 
         #endregion
 
+        // 作業フォルダ
+        public static string WorkingDirectory = Environment.CurrentDirectory;
+
         /// <summary>
         /// iniを読み込む
         /// </summary>
@@ -43,7 +47,7 @@ namespace IniUtils
         public static string GetIniValue(string path, string section, string key, string defaultVal = "")
         {
             StringBuilder sb = new StringBuilder(4096);
-            GetPrivateProfileString(section, key, defaultVal, sb, sb.Capacity, path);
+            GetPrivateProfileString(section, key, defaultVal, sb, sb.Capacity, Path.GetFullPath(path));
             return sb.ToString();
         }
 
@@ -56,7 +60,7 @@ namespace IniUtils
         /// <param name="value">設定値</param>
         public static void SetIniValue(string path, string section, string key, string value)
         {
-            WritePrivateProfileString(section, key, value, path);
+            WritePrivateProfileString(section, key, value, Path.GetFullPath(path));
         }
 
 
@@ -88,6 +92,8 @@ namespace IniUtils
                         return GetIniValue(IniFilePath, section, key, defVal?.ToString()).Replace(@"\n", "\r\n");
                     case IniDataAttribute.DataType.StringArrayData:
                         return GetIniValue(IniFilePath, section, key, defVal?.ToString()).Split(',');
+                    case IniDataAttribute.DataType.StringListData:
+                        return ReadIniDataList(IniFilePath, section, key);
                     case IniDataAttribute.DataType.IntegerData:
                         return ReadIniDataNumeric<int>(IniFilePath, section, key, defVal);
                     case IniDataAttribute.DataType.FloatData:
@@ -138,7 +144,6 @@ namespace IniUtils
                 string IniFilePath = attribute.File;
                 string section = attribute.Section;
                 string key = attribute.Key;
-                object defVal = attribute.DefaultValue;
                 IniDataAttribute.DataType dataType = attribute.ValueType;
                 switch (dataType)
                 {
@@ -152,6 +157,9 @@ namespace IniUtils
                         break;
                     case IniDataAttribute.DataType.StringArrayData:
                         SetIniValue(IniFilePath, section, key, string.Join(",", (string[])value));
+                        break;
+                    case IniDataAttribute.DataType.StringListData:
+                        SetIniDataList(IniFilePath, section, key, (List<string>)value);
                         break;
                     case IniDataAttribute.DataType.BooleanFlag:
                         SetIniValue(IniFilePath, section, key, ((bool)value) ? "1" : "0");
@@ -203,13 +211,42 @@ namespace IniUtils
             {
                 // パースに失敗したらデフォルト値をTにパースして渡す
                 T parsedDefaultVal = default;
-                if (!TryParse(defaultVal.ToString(), ref parsedDefaultVal))
+                if (!TryParse(defaultVal?.ToString(), ref parsedDefaultVal))
                 {
                     parsedDefaultVal = default;
                 }
                 result = parsedDefaultVal;
             }
             return result;
+        }
+
+        public static List<string> ReadIniDataList(string IniFilePath, string section, string key_prefix)
+        {
+            string nothing = "ogregs9rt89g8er79gse9se9r";
+            List<string> list = new List<string>();
+            for (int i = 1; i <= 20000000; i++)
+            {
+                string val = GetIniValue(IniFilePath, section, key_prefix + i, nothing);
+                // キーなしなら終了
+                if (val == nothing)
+                {
+                    return list;
+                }
+                list.Add(val);
+            }
+            return list;
+        }
+
+        public static void SetIniDataList(string IniFilePath, string section, string key_prefix, List<string> list)
+        {
+            int index = 1;
+            foreach (string item in list)
+            {
+                SetIniValue(IniFilePath, section, key_prefix + index, item);
+                index++;
+            }
+            // 最後にキーを削除してストップしておく
+            SetIniValue(IniFilePath, section, key_prefix + index, null);
         }
 
 
