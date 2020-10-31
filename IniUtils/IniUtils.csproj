@@ -41,11 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigrationDataSource.cs" />
     <Compile Include="IniData.cs" />
     <Compile Include="IniDataAttribute.cs" />
     <Compile Include="IniDataList.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="IniFileList.cs" />
+    <Compile Include="IniFileMetaData.cs" />
     <Compile Include="IniFileParser.cs" />
     <Compile Include="IniFileUtility.cs" />
     <Compile Include="IniSection.cs" />

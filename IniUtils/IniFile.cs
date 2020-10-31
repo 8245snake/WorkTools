@@ -10,11 +10,33 @@ namespace IniUtils
     public class IniFile : ICloneable
     {
         public string FileName = "";
-        public IniSectionList Sections = new IniSectionList();
+        public IniSectionList Sections;
+        public IniFileMetaData MetaData;
 
         public IniFile(string fileName)
         {
             FileName = fileName;
+            Sections = new IniSectionList();
+            MetaData = new IniFileMetaData();
+        }
+
+        public IniFile(string fileName, IniFileMetaData metadata)
+        {
+            FileName = fileName;
+            Sections = new IniSectionList();
+            MetaData = metadata;
+        }
+
+        public IniFile(string fileName, string section , string key = "", string value = "", string comment = "")
+        {
+            FileName = fileName;
+            MetaData = new IniFileMetaData();
+            Sections = new IniSectionList(new IniSection[] { new IniSection(fileName, section) });
+            if (key != "" && value != "")
+            {
+                Sections[section].Keys = new IniDataList(new IniData[] { new IniData(fileName, section, key, value, comment) });
+
+            }
         }
 
         public IEnumerable<IniSection> GetIniSections()

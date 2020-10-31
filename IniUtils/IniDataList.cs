@@ -82,7 +82,7 @@ namespace IniUtils
 
         public bool ContainsKey(string key)
         {
-            return Keys.Contains(key);
+            return this[key] != null;
         }
 
         public void CopyTo(KeyValuePair<string, IniData>[] array, int arrayIndex)

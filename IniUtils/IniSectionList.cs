@@ -82,7 +82,7 @@ namespace IniUtils
 
         public bool ContainsKey(string sectionName)
         {
-            return SectionNames.Contains(sectionName);
+            return this[sectionName] != null;
         }
 
         public void CopyTo(KeyValuePair<string, IniSection>[] array, int arrayIndex)

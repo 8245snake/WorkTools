@@ -19,7 +19,7 @@ namespace IniUtils
         public static IniFile ParseIniFile(string iniFilePath)
         {
             string fileName = Path.GetFileName(iniFilePath);
-            IniFile iniFile = new IniFile(fileName);
+            IniFile iniFile = new IniFile(fileName, new IniFileMetaData(iniFilePath));
 
             IEnumerable<string> lines = ReadFileLines(iniFilePath);
             lines = RemoveNoneSenceLine(lines);
@@ -71,6 +71,7 @@ namespace IniUtils
         /// <returns>１行分の文字列</returns>
         private static IEnumerable<string> ReadFileLines(string filePath)
         {
+            if (! File.Exists(filePath)) { yield break; }
             using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.GetEncoding("shift_jis")))
             {
                 while (!reader.EndOfStream)

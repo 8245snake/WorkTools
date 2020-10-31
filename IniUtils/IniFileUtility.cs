@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace IniUtils
 {
+    /// <summary>
+    /// iniファイルの読み書き機能を提供するクラス
+    /// </summary>
     public class IniFileUtility
     {
 
@@ -34,8 +37,21 @@ namespace IniUtils
 
         #endregion
 
-        // 作業フォルダ
-        public static string WorkingDirectory = Environment.CurrentDirectory;
+        /// <summary>
+        /// iniファイルを探すフォルダ
+        /// </summary>
+        public static string IniFileDirectory = Environment.CurrentDirectory;
+
+        /// <summary>
+        /// 独自のパーサーでiniファイルをパースするか
+        /// </summary>
+        public static bool UseIniFileParser = false;
+
+        /// <summary>
+        /// メモリ上に保存してあるiniファイル
+        /// </summary>
+        private static IniFileList PoolIniFileList = new IniFileList();
+
 
         /// <summary>
         /// iniを読み込む
@@ -46,9 +62,43 @@ namespace IniUtils
         /// <returns>設定値</returns>
         public static string GetIniValue(string path, string section, string key, string defaultVal = "")
         {
+            if (UseIniFileParser)
+            {
+                string val = GetIniFile(GetFullPath(path))?.Sections[section]?.Keys[key]?.Value;
+                if (val == null)
+                {
+                    return defaultVal;
+                }
+                return val;
+            }
+
+            // レガシー処理
             StringBuilder sb = new StringBuilder(4096);
-            GetPrivateProfileString(section, key, defaultVal, sb, sb.Capacity, Path.GetFullPath(path));
+            GetPrivateProfileString(section, key, defaultVal, sb, sb.Capacity, GetFullPath(path));
             return sb.ToString();
+        }
+
+
+
+        /// <summary>
+        /// キーが存在するかを判定する
+        /// </summary>
+        /// <param name="path">iniファイルのパス</param>
+        /// <param name="section">セクション</param>
+        /// <param name="key">キー</param>
+        /// <returns></returns>
+        public static bool ExistsKey(string path, string section, string key)
+        {
+            if (UseIniFileParser)
+            {
+                string val = GetIniFile(path)?.Sections[section]?.Keys[key]?.Value;
+                return (val != null);
+            }
+
+            // レガシー処理
+            string judgeStr = "ma;jfo;g4j340ko09jjjg349985";
+            string inival = GetIniValue(path, section, key, judgeStr);
+            return (inival != judgeStr);
         }
 
         /// <summary>
@@ -58,9 +108,19 @@ namespace IniUtils
         /// <param name="section">セクション</param>
         /// <param name="key">キー</param>
         /// <param name="value">設定値</param>
-        public static void SetIniValue(string path, string section, string key, string value)
+        /// <param name="comment">コメント</param>
+        public static void SetIniValue(string path, string section, string key, string value, string comment = "")
         {
-            WritePrivateProfileString(section, key, value, Path.GetFullPath(path));
+            if (UseIniFileParser)
+            {
+                string filename = Path.GetFileName(path);
+                IniFile ini = new IniFile(filename, section, key, value, comment);
+                ini.OutputIniFile(GetFullPath(path), comment != "");
+                return;
+            }
+
+            // レガシー処理
+            WritePrivateProfileString(section, key, value, GetFullPath(path));
         }
 
 
@@ -79,19 +139,20 @@ namespace IniUtils
                 IniDataAttribute attribute = Attribute.GetCustomAttribute(propertyInfo, typeof(IniDataAttribute)) as IniDataAttribute;
                 if (attribute == null) { continue; }
 
-                string IniFilePath = attribute.File;
+                string IniFilePath = GetFullPath(attribute.File);
                 string section = attribute.Section;
                 string key = attribute.Key;
                 object defVal = attribute.DefaultValue;
-                IniDataAttribute.DataType dataType = attribute.ValueType;
+                // 未定義ならStringDataということにしておく
+                IniDataAttribute.DataType dataType = (attribute?.ValueType != null)? attribute.ValueType : IniDataAttribute.DataType.StringData;
                 switch (dataType)
                 {
                     case IniDataAttribute.DataType.StringData:
                         return GetIniValue(IniFilePath, section, key, defVal?.ToString());
                     case IniDataAttribute.DataType.StringDataWithCarriageReturn:
-                        return GetIniValue(IniFilePath, section, key, defVal?.ToString()).Replace(@"\n", "\r\n");
+                        return GetIniValue(IniFilePath, section, key, defVal?.ToString())?.Replace(@"\n", "\r\n");
                     case IniDataAttribute.DataType.StringArrayData:
-                        return GetIniValue(IniFilePath, section, key, defVal?.ToString()).Split(',');
+                        return GetIniValue(IniFilePath, section, key, defVal?.ToString())?.Split(',');
                     case IniDataAttribute.DataType.StringListData:
                         return ReadIniDataList(IniFilePath, section, key);
                     case IniDataAttribute.DataType.IntegerData:
@@ -141,7 +202,7 @@ namespace IniUtils
                 IniDataAttribute attribute = Attribute.GetCustomAttribute(propertyInfo, typeof(IniDataAttribute)) as IniDataAttribute;
                 if (attribute == null) { continue; }
 
-                string IniFilePath = attribute.File;
+                string IniFilePath = GetFullPath(attribute.File);
                 string section = attribute.Section;
                 string key = attribute.Key;
                 IniDataAttribute.DataType dataType = attribute.ValueType;
@@ -220,33 +281,104 @@ namespace IniUtils
             return result;
         }
 
+        /// <summary>
+        /// 1起算の連番キーを読んでリストを返す
+        /// </summary>
+        /// <param name="IniFilePath">パス</param>
+        /// <param name="section">セクション</param>
+        /// <param name="key_prefix">連番キーの接頭辞</param>
+        /// <returns>値のリスト</returns>
         public static List<string> ReadIniDataList(string IniFilePath, string section, string key_prefix)
         {
-            string nothing = "ogregs9rt89g8er79gse9se9r";
             List<string> list = new List<string>();
+            if (!UseIniFileParser)
+            {
+                // レガシー処理
+                string nothing = "ogregs9rt89g8er79gse9se9r";
+                for (int i = 1; i <= 20000000; i++)
+                {
+                    string val = GetIniValue(IniFilePath, section, key_prefix + i, nothing);
+                    // キーなしなら終了
+                    if (val == nothing)
+                    {
+                        break;
+                    }
+                    list.Add(val);
+                }
+                return list;
+            }
+
+            IniFile ini = GetIniFile(IniFilePath);
+            IniSection targetSection = ini.Sections[section];
             for (int i = 1; i <= 20000000; i++)
             {
-                string val = GetIniValue(IniFilePath, section, key_prefix + i, nothing);
-                // キーなしなら終了
-                if (val == nothing)
+                IniData data;
+                if (targetSection.Keys.TryGetValue(key_prefix + i, out data))
                 {
-                    return list;
+                    list.Add(data.Value);
                 }
-                list.Add(val);
+                else
+                {
+                    break;
+                }
             }
+
             return list;
         }
 
+        /// <summary>
+        /// リストをiniに書き込む
+        /// </summary>
+        /// <param name="IniFilePath">iniのパス</param>
+        /// <param name="section">セクション</param>
+        /// <param name="key_prefix">キー名の接頭辞</param>
+        /// <param name="list">書き込むList</param>
         public static void SetIniDataList(string IniFilePath, string section, string key_prefix, List<string> list)
         {
-            int index = 1;
+            if (! UseIniFileParser) {
+                // レガシー処理
+                int index = 1;
+                foreach (string item in list)
+                {
+                    SetIniValue(IniFilePath, section, key_prefix + index, item);
+                    index++;
+                }
+                // 最後にキーを削除してストップしておく
+                SetIniValue(IniFilePath, section, key_prefix + index, null);
+                return;
+            }
+
+            // 出力
+            string name = Path.GetFileName(IniFilePath);
+            IniFile iniInsert = new IniFile(name, section);
+            int count = 1;
             foreach (string item in list)
             {
-                SetIniValue(IniFilePath, section, key_prefix + index, item);
-                index++;
+                iniInsert.Sections[section].Keys.Add(new IniData(name, section, key_prefix + count, item));
+                count++;
             }
-            // 最後にキーを削除してストップしておく
-            SetIniValue(IniFilePath, section, key_prefix + index, null);
+            iniInsert.OutputIniFile(IniFilePath, false);
+
+            // 最大番号以降を消す
+            IniFile ini = GetIniFile(IniFilePath);
+            List<string> keyNames = new List<string>();
+            IniSection targetSection = ini.Sections[section];
+            for (int i = count; i < 20000000; i++)
+            {
+                if (targetSection.Keys.ContainsKey(key_prefix + i))
+                {
+                    keyNames.Add(key_prefix + i);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (keyNames.Count > 0)
+            {
+                DeleteIniData(IniFilePath, section, keyNames, false, true);
+            }
+           
         }
 
 
@@ -259,7 +391,7 @@ namespace IniUtils
         /// <param name="commentOut"></param>
         /// <param name="deleteWithComment"></param>
         public static void DeleteIniData(string iniPath, string sectionName, ICollection<string> keyNames = null, bool commentOut = true, bool deleteWithComment = false) {
-            string IniName = System.IO.Path.GetFileName(iniPath);
+            string IniName = Path.GetFileName(iniPath);
             IniFile ini = new IniFile(IniName);
             IniSection section = new IniSection(IniName, sectionName);
             if (keyNames == null)
@@ -274,9 +406,65 @@ namespace IniUtils
             }
 
             ini.Sections.Add(section);
-
             ini.Delete(iniPath, commentOut, deleteWithComment);
             
+        }
+
+        /// <summary>
+        /// iniファイルオブジェクトを取得する
+        /// </summary>
+        /// <param name="path">ファイルのパス</param>
+        /// <returns>iniファイルオブジェクト</returns>
+        private static IniFile GetIniFile(string path)
+        {
+            IniFile ini = PoolIniFileList[Path.GetFileName(path)];
+            // なければパースして返す
+            if (ini == null)
+            {
+                ini = IniFileParser.ParseIniFile(path);
+                PoolIniFileList.Add(ini);
+                return ini;
+            }
+
+            // あったらフルパスを比較して正しければ返す
+            if (ini.MetaData?.FullPath == GetFullPath(path))
+            {
+                return ini;
+            }
+
+            // フルパスが異なればパースして返す
+            ini = IniFileParser.ParseIniFile(path);
+            PoolIniFileList[Path.GetFileName(path)] = ini;
+            return ini;
+        }
+
+        /// <summary>
+        /// パスが絶対パスかを判定する
+        /// </summary>
+        /// <param name="path">パス文字列</param>
+        /// <returns>絶対パスならtrue</returns>
+        private static bool IsAbsolutePath(string path)
+        {
+            if (path == null || path.Length < 1) { return false; }
+            if (path.StartsWith(@"\\")) { return true; }
+            if (path.Substring(1, 1) == ":") { return true; }
+            return false;
+        }
+
+        /// <summary>
+        /// 与えたパスの絶対パスを返す
+        /// </summary>
+        /// <param name="path">パス</param>
+        /// <returns>絶対パス</returns>
+        /// <remarks>相対パスの場合、IniFileDirectoryを基準に探す</remarks>
+        private static string GetFullPath(string path)
+        {
+            if (IsAbsolutePath(path))
+            {
+                return Path.GetFullPath(path);
+            }
+
+            return Path.GetFullPath(Path.Combine(IniFileDirectory, path));
         }
 
     }
