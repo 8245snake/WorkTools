@@ -71,12 +71,24 @@ namespace IniUtils
         }
 
         /// <summary>
-        /// プロパティ属性で指定した設定を書き込む
+        /// プロパティ属性で指定したiniに書き込む
         /// </summary>
         /// <param name="propertyName">プロパティ名</param>
         /// <param name="value">設定値</param>
         protected void WriteProperty(string propertyName, object value)
         {
+            IniFileUtility.WriteToProperty(GetType(), propertyName, value);
+        }
+
+        /// <summary>
+        /// プロパティ属性で指定したiniとプライベート変数に書き込む
+        /// </summary>
+        /// <param name="propertyName">プロパティ名</param>
+        /// <param name="value">設定値</param>
+        /// <param name="privateField"></param>
+        protected void WriteProperty(string propertyName, object value, ref object privateField)
+        {
+            privateField = value;
             IniFileUtility.WriteToProperty(GetType(), propertyName, value);
         }
     }
