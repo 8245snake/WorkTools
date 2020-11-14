@@ -309,7 +309,8 @@ namespace IniUtils
             }
 
             IniFile ini = GetIniFile(IniFilePath);
-            IniSection targetSection = ini.Sections[section];
+            IniSection targetSection = ini?.Sections[section];
+            if (targetSection == null) { return list; }
             for (int i = 1; i <= 20000000; i++)
             {
                 IniData data;
