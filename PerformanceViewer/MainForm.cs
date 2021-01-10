@@ -132,12 +132,12 @@ namespace PerformanceViewer
                 template = reader.ReadToEnd();
             }
             string resultPath = Path.Combine(templateDir, "chart.html");
-
+            string title = $"{data.Machine}({data.DateTimeString})";
             var viewBag = new RazorEngine.Templating.DynamicViewBag();
-            viewBag.AddValue("Title", data.Machine);
+            viewBag.AddValue("Title", title);
             viewBag.AddValue("Items", ChartItem.GetChartItems(data));
 
-            var result = Razor.Parse(template, null, viewBag, data.Machine);
+            var result = Razor.Parse(template, null, viewBag, title);
             using (StreamWriter writer = new StreamWriter(resultPath))
             {
                 writer.Write(result);

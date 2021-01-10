@@ -5,7 +5,9 @@
   <title>パフォーマンス測定結果</title>
 </head>
 <body>
-    <canvas id="myChart"></canvas>
+
+    <h1>@ViewBag.Title</h1>
+    <canvas id="myChart" height='90%'></canvas>
     <script src="./node_modules/chart.js/dist/Chart.bundle.js"></script>
 
     <script>
@@ -14,7 +16,6 @@
             type: 'line',
             data: {
                 datasets: [{
-                    label: '@ViewBag.Title',
                     backgroundColor: 'rgb(0, 0, 255)',
                     borderColor: 'rgb(0, 0, 255)',
                     fill: false,
@@ -35,9 +36,16 @@
                     xAxes: [{
                         type: 'time',
                         time: {
-                            unit: 'minute'
+                            unit: 'minute',
+                            unitStepSize: 5,
+                            displayFormats: {
+                                minute: 'HH:mm'
+                            }
                         }
                     }]
+                },
+                legend: {
+                    display: false
                 }
             }
         });

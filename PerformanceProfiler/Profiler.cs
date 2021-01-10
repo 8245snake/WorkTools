@@ -66,6 +66,7 @@ namespace PerformanceProfiler
             IEnumerable<string> lines = EnumLogLines(path, _StartToken, _EndToken);
             IEnumerable<LogTimeSpan> spans = CreateTimeSpanData(lines, _StartToken, _EndToken);
             data.TimeSpanList = spans.ToList();
+            if (data.TimeSpanList.Count < 1) { return null; }
             return data;
         }
 
