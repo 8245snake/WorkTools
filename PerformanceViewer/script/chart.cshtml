@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>パフォーマンス測定結果</title>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script src="./node_modules/chart.js/dist/Chart.bundle.js"></script>
+
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: '@ViewBag.Title',
+                    backgroundColor: 'rgb(0, 0, 255)',
+                    borderColor: 'rgb(0, 0, 255)',
+                    fill: false,
+                    data: [
+                        //プロットデータを入れる
+                        @foreach (PerformanceViewer.ChartItem item in @ViewBag.Items)
+                        {
+                            @:{
+                            @:x: '@item.X',
+                            @:y: '@item.Y'
+                            @:},
+                        }
+                    ]
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+</body>
+</html>
