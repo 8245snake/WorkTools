@@ -24,7 +24,7 @@ namespace PerformanceViewer
 
             foreach (var span in data.TimeSpanList)
             {
-                string x = span.LogDateTime.ToString("yyyy-MM-ddThh:mm:ss");
+                string x = span.LogDateTime.ToString("yyyy-MM-ddTHH:mm:ss");
                 string y = Math.Round(span.Seconds, 2).ToString();
                 list.Add(new ChartItem(x, y));
             }
