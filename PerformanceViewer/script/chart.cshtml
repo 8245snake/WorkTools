@@ -18,7 +18,9 @@
                 datasets: [{
                     backgroundColor: 'rgb(0, 0, 255)',
                     borderColor: 'rgb(0, 0, 255)',
+                    spanGaps: false,
                     fill: false,
+                    lineTension: 0,
                     data: [
                         //プロットデータを入れる
                         @foreach (PerformanceViewer.ChartItem item in @ViewBag.Items)
@@ -41,7 +43,12 @@
                             displayFormats: {
                                 minute: 'HH:mm'
                             }
-                        }
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: '時刻',
+                            fontSize: 18
+                        },
                     }],
                     yAxes: [{
                         ticks: {
@@ -49,7 +56,12 @@
                             min: 0,
                             stepSize: 1,
                             beginAtZero: true
-                        }
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: '秒数',
+                            fontSize: 18
+                        },
                     }],
                 },
                 legend: {

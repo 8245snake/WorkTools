@@ -155,6 +155,8 @@ namespace PerformanceProfiler
         private bool GetDateTimeFromLogMessage(string line, out DateTime datetime)
         {
             datetime = default;
+            if (line.Length < 24) { return false; }
+
             if (!int.TryParse(line.Substring(0, 4), out int year)) { return false; }
             if (!int.TryParse(line.Substring(5, 2), out int month)) { return false; }
             if (!int.TryParse(line.Substring(8, 2), out int day)) { return false; }

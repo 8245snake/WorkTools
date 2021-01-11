@@ -26,6 +26,9 @@ namespace PerformanceProfiler
         public double Seconds { get => LogSpan.TotalSeconds; }
 
 
+        public string LogDateTimeString { get => LogDateTime.ToString("yyyy/MM/dd HH:mm"); }
+
+
         public string ToTSV() {
             string delim = "\t";
             return $"{LogDateTime.ToString("yyyy/MM/dd HH:mm:ss.fff")}{delim}{Seconds}";

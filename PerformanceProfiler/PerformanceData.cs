@@ -96,9 +96,10 @@ namespace PerformanceProfiler
         /// <remarks>毎時読み込み処理の経過時間を合計し分で割る</remarks>
         public void CalculateScore()
         {
-            double total = TimeSpanList.Sum(item => item.Seconds);
-            double minute = (TimeSpanList.Last().LogDateTime - TimeSpanList.First().LogDateTime).TotalMinutes;
-            _Score = total / minute;
+            // ログを含む分までの時刻の合計→総稼働時間(min)
+            int totlaRunningMinute = TimeSpanList.Select(span => span.LogDateTimeString).Distinct().Count();
+            double totalFreezeSecond = TimeSpanList.Sum(span => span.Seconds);
+            _Score = totalFreezeSecond / totlaRunningMinute;
         }
     }
 }
