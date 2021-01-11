@@ -16,12 +16,19 @@ namespace PerformanceViewer
     public partial class frmMain : Form
     {
         private ProfilingResult _ProfilingResult;
+        private ScoreStatistic _ScoreStatistic;
 
         public frmMain()
         {
             InitializeComponent();
             txtStartToken.Text = "毎時読み込み処理開始";
             txtEndToken.Text = "毎時読み込み処理終了";
+            _ScoreStatistic = new ScoreStatistic(gridColor);
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            _ScoreStatistic.InitColorGrid();
         }
 
         private void btnExec_Click(object sender, EventArgs e)
@@ -74,6 +81,8 @@ namespace PerformanceViewer
                 }
             }
 
+            _ScoreStatistic.Calculate(_ProfilingResult);
+            _ScoreStatistic.PaintColorGrid(gridLogs);
 
         }
 
@@ -146,5 +155,7 @@ namespace PerformanceViewer
             Uri uri = new Uri(resultPath);
             return uri.AbsoluteUri;
         }
+
+
     }
 }

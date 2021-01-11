@@ -63,5 +63,10 @@ namespace PerformanceProfiler
                 .Select(item => item.DateTimeString)
                 .Distinct();
         }
+
+        public IEnumerable<double> GetScores()
+        {
+            return _list.Select(item => item.Score);
+        }
     }
 }

@@ -36,7 +36,13 @@
             this.label3 = new System.Windows.Forms.Label();
             this.txtEndToken = new System.Windows.Forms.TextBox();
             this.btnExec = new System.Windows.Forms.Button();
+            this.gridColor = new System.Windows.Forms.DataGridView();
+            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.gridLogs)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridColor)).BeginInit();
             this.SuspendLayout();
             // 
             // gridLogs
@@ -57,7 +63,7 @@
             this.gridLogs.RowTemplate.Height = 21;
             this.gridLogs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.gridLogs.ShowEditingIcon = false;
-            this.gridLogs.Size = new System.Drawing.Size(676, 374);
+            this.gridLogs.Size = new System.Drawing.Size(676, 341);
             this.gridLogs.TabIndex = 0;
             this.gridLogs.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridLogs_CellDoubleClick);
             // 
@@ -132,11 +138,58 @@
             this.btnExec.UseVisualStyleBackColor = true;
             this.btnExec.Click += new System.EventHandler(this.btnExec_Click);
             // 
+            // gridColor
+            // 
+            this.gridColor.AllowUserToAddRows = false;
+            this.gridColor.AllowUserToDeleteRows = false;
+            this.gridColor.AllowUserToResizeColumns = false;
+            this.gridColor.AllowUserToResizeRows = false;
+            this.gridColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.gridColor.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridColor.ColumnHeadersVisible = false;
+            this.gridColor.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Column1,
+            this.Column2,
+            this.Column3,
+            this.Column4});
+            this.gridColor.Location = new System.Drawing.Point(15, 522);
+            this.gridColor.Name = "gridColor";
+            this.gridColor.ReadOnly = true;
+            this.gridColor.RowHeadersVisible = false;
+            this.gridColor.RowTemplate.Height = 21;
+            this.gridColor.Size = new System.Drawing.Size(403, 28);
+            this.gridColor.TabIndex = 8;
+            // 
+            // Column1
+            // 
+            this.Column1.HeaderText = "Column1";
+            this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
+            // 
+            // Column2
+            // 
+            this.Column2.HeaderText = "Column2";
+            this.Column2.Name = "Column2";
+            this.Column2.ReadOnly = true;
+            // 
+            // Column3
+            // 
+            this.Column3.HeaderText = "Column3";
+            this.Column3.Name = "Column3";
+            this.Column3.ReadOnly = true;
+            // 
+            // Column4
+            // 
+            this.Column4.HeaderText = "Column4";
+            this.Column4.Name = "Column4";
+            this.Column4.ReadOnly = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 562);
+            this.Controls.Add(this.gridColor);
             this.Controls.Add(this.btnExec);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtEndToken);
@@ -149,7 +202,9 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "frmMain";
             this.Text = "パフォーマンス測定";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.gridLogs)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridColor)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -165,6 +220,11 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtEndToken;
         private System.Windows.Forms.Button btnExec;
+        private System.Windows.Forms.DataGridView gridColor;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
     }
 }
 
