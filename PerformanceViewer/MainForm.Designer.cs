@@ -41,6 +41,7 @@
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.gridLogs)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridColor)).BeginInit();
             this.SuspendLayout();
@@ -72,7 +73,7 @@
             this.txtFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFolder.Font = new System.Drawing.Font("游ゴシック", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.txtFolder.Location = new System.Drawing.Point(85, 12);
+            this.txtFolder.Location = new System.Drawing.Point(85, 31);
             this.txtFolder.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.txtFolder.Name = "txtFolder";
             this.txtFolder.Size = new System.Drawing.Size(599, 29);
@@ -81,7 +82,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 16);
+            this.label1.Location = new System.Drawing.Point(12, 35);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(42, 15);
             this.label1.TabIndex = 2;
@@ -152,7 +153,7 @@
             this.Column2,
             this.Column3,
             this.Column4});
-            this.gridColor.Location = new System.Drawing.Point(15, 522);
+            this.gridColor.Location = new System.Drawing.Point(71, 522);
             this.gridColor.Name = "gridColor";
             this.gridColor.ReadOnly = true;
             this.gridColor.RowHeadersVisible = false;
@@ -184,11 +185,22 @@
             this.Column4.Name = "Column4";
             this.Column4.ReadOnly = true;
             // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 525);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(53, 15);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "色の凡例";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 562);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.gridColor);
             this.Controls.Add(this.btnExec);
             this.Controls.Add(this.label3);
@@ -225,6 +237,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column3;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column4;
+        private System.Windows.Forms.Label label4;
     }
 }
 
