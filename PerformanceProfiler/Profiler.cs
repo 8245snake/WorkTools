@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace PerformanceProfiler
 {
@@ -14,6 +15,14 @@ namespace PerformanceProfiler
 
         private Encoding _Encoding = Encoding.GetEncoding("shift_jis");
         private Regex regexDebuglog = new Regex(@"^OR_DBG_(?<code>[A-Za-z0-9]+)?_(?<machine>[A-Za-z0-9\-]+)_(?<app>([A-Za-z0-9\-]+)|(PRESCIENT.+))_(?<year>\d{4})(?<month>\d{2})(?<date>\d{2}).*", RegexOptions.Compiled);
+
+        /// <summary>
+        /// ログファイルを1件処理するごとに呼ばれるコールバック関数
+        /// </summary>
+        /// <param name="data">パフォーマンス測定データ</param>
+        /// <param name="progressCurrent">現在のファイルが何番目か</param>
+        /// <param name="progressMax">全部のファイル数</param>
+        public delegate void CalclateProgressCallback(PerformanceData data, int progressCurrent, int progressMax);
 
         public Profiler(string startToken , string endToken)
         {
@@ -39,6 +48,38 @@ namespace PerformanceProfiler
             }
             result.CalculateAllScore();
             return result;
+        }
+
+        /// <summary>
+        /// パフォーマンス計算処理(async版)
+        /// </summary>
+        /// <param name="directory">ログが格納されているフォルダ</param>
+        /// <param name="callback">ログファイルを1件処理するごとに呼ばれるコールバック関数</param>
+        /// <returns></returns>
+        public Task<ProfilingResult> CalculateAsync(string directory, CalclateProgressCallback callback = null)
+        {
+            return Task.Factory.StartNew(() => {
+                ProfilingResult result = new ProfilingResult();
+                string[] files = Directory.GetFiles(directory, "*log*", SearchOption.AllDirectories);
+                int max = files.Length;
+                int progress = 0;
+                foreach (string path in files)
+                {
+                    PerformanceData data = CreatePerformanceData(path);
+                    if (callback != null) 
+                    {
+                        progress++;
+                        callback(data, progress, max);
+                    }
+
+                    if (data != null)
+                    {
+                        result.Add(data);
+                    }
+                }
+                result.CalculateAllScore();
+                return result;
+            });
         }
 
         /// <summary>

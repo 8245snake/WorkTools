@@ -17,6 +17,7 @@ namespace PerformanceViewer
     {
         private ProfilingResult _ProfilingResult;
         private ScoreStatistic _ScoreStatistic;
+        private ProgressForm _ProgressForm;
 
         public frmMain()
         {
@@ -24,6 +25,8 @@ namespace PerformanceViewer
             txtStartToken.Text = "毎時読み込み処理開始";
             txtEndToken.Text = "毎時読み込み処理終了";
             _ScoreStatistic = new ScoreStatistic(gridColor);
+            _ProgressForm = new ProgressForm();
+            _ProgressForm.TopMost = true;
         }
 
         private void frmMain_Load(object sender, EventArgs e)
@@ -44,10 +47,15 @@ namespace PerformanceViewer
             StartCalculate(start, end, path);
         }
 
-        private void StartCalculate(string start, string end, string path)
+        private async void StartCalculate(string start, string end, string path)
         {
+            
+            _ProgressForm.Show();
+            this.Enabled = false;
             Profiler p = new Profiler(start, end);
-            _ProfilingResult = p.Calculate(path);
+            _ProfilingResult = await p.CalculateAsync(path, ProgressCallback);
+            this.Enabled = true;
+            _ProgressForm.Hide();
 
             // 先に行と列のヘッダだけ作る
             gridLogs.Columns.Clear();
@@ -84,6 +92,20 @@ namespace PerformanceViewer
             _ScoreStatistic.Calculate(_ProfilingResult);
             _ScoreStatistic.PaintColorGrid(gridLogs);
 
+        }
+
+        /// <summary>
+        /// ログ解析処理のコールバック関数
+        /// </summary>
+        /// <param name="data">解析されたデータ</param>
+        /// <param name="progressCurrent">進捗</param>
+        /// <param name="progressMax">全件数</param>
+        private void ProgressCallback(PerformanceData data, int progressCurrent, int progressMax)
+        {
+            _ProgressForm.Invoke(new Action(() => {
+                _ProgressForm.InvokeSetMaxProgress(progressMax);
+                _ProgressForm.InvokeSetProgressValue(progressCurrent);
+            }));
         }
 
         /// <summary>
